@@ -5,6 +5,7 @@ import ua.org.dector.lwsgl.graphics._
 import org.newdawn.slick.Color
 import collection.mutable.Queue
 import org.lwjgl.input.Keyboard
+import util.Random
 
 /**
  * @author dector (dector9@gmail.com)
@@ -33,6 +34,7 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private val field = new GameField(FIELD_X_BLOCKS_NUM, FIELD_Y_BLOCKS_NUM)
 
+    private val elementsPool = Array(new Stick, new Block, new RZip, new LZip, new G)
     private var currElement = getNextFallingElement
     private var currElementX = getStartFallingX
     private var currElementY = getStartFallingY
@@ -51,7 +53,7 @@ object Scatris extends LWSGLApp("Scatris") {
     private def getStartFallingY: Int = FIELD_Y_BLOCKS_NUM - 1
 
     private def getNextFallingElement: Element = {
-        new Stick
+        elementsPool(Random nextInt elementsPool.size)
     }
 
     private def generateNextFallingElement() {
@@ -60,14 +62,46 @@ object Scatris extends LWSGLApp("Scatris") {
         currElementY = getStartFallingY
     }
 
-    private def canMoveCurrElementDown: Boolean =
-        ! field(currElementX, currElementY - 1)
+    private def canMoveCurrElementDown: Boolean = {
+        var canMove = true
+        var i = 0
 
-    private def canMoveCurrElementLeft: Boolean =
-        ! field(currElementX - 1, currElementY)
+        val bottomBlocksY = currElement.bottomBlocksY
 
-    private def canMoveCurrElementRight: Boolean =
-        ! field(currElementX + 1, currElementY + currElement.width - 1)
+        while (canMove && i < currElement.width) {
+            if (field(currElementX + i, currElementY + bottomBlocksY(i) - 1)) canMove = false
+            i += 1
+        }
+
+        canMove
+    }
+
+    private def canMoveCurrElementLeft: Boolean = {
+        var canMove = true
+        var i = 0
+
+        while (canMove && i < currElement.height) {
+            if (currElement(0, i)
+                    && field(currElementX - 1, currElementY + i)) canMove = false
+            i += 1
+        }
+
+        canMove
+    }
+
+    private def canMoveCurrElementRight: Boolean = {
+        var canMove = true
+        var i = 0
+
+        while (canMove && i < currElement.height) {
+            if (currElement(currElement.width - 1, i)
+                    && field(currElementX + currElement.width, currElementY + i))
+                canMove = false
+            i += 1
+        }
+
+        canMove
+    }
 
     private def moveCurrElementDown() {currElementY -= 1}
     private def moveCurrElementLeft() {currElementX -= 1}
