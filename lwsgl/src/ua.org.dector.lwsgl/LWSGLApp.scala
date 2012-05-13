@@ -2,6 +2,7 @@ package ua.org.dector.lwsgl
 
 import org.lwjgl.opengl.GL11._
 import org.lwjgl.opengl.{Display, DisplayMode}
+import org.newdawn.slick.Color
 
 /**
  * @author dector (dector9@gmail.com)
@@ -14,6 +15,8 @@ abstract class LWSGLApp(val name: String) {
 
     val displayWidth = DEFAULT_DISPLAY_WIDTH
     val displayHeight = DEFAULT_DISPLAY_HEIGHT
+
+    val clearColor = Color.black
 
     val title = name
     val syncRate = DEFAULT_DISPLAY_SYNC_RATE
@@ -33,8 +36,10 @@ abstract class LWSGLApp(val name: String) {
     def initOGL() {
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(0, displayWidth, displayHeight, 0, -1, 1)
+        glOrtho(0, displayWidth, 0, displayHeight, -1, 1)
         glMatrixMode(GL_MODELVIEW)
+
+        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
     }
 
     def updateDisplay() {
