@@ -5,9 +5,22 @@ package ua.org.dector.scatris
  */
 
 class GameField(val width: Int, val height: Int) {
-    val elements = Array.ofDim[Boolean](width, height)
+    private val elements = Array.ofDim[Boolean](width, height)
 
-    def append(el: Element) {
-        println("Implement me")
+    private def isPointCorrect(x: Int, y: Int): Boolean = {
+        0 <= x && x < width && 0 <= y && y < height
+    }
+
+    def apply(x: Int, y: Int): Boolean = {
+        if (isPointCorrect(x, y)) elements(x)(y)
+        else true
+    }
+
+    def update(x: Int, y: Int, value: Boolean) {
+        if (isPointCorrect(x, y)) elements(x)(y) = value
+    }
+
+    def append(el: Element, elX: Int, elY: Int) {
+        for ((x, y) <- el.blocks) this(elX + x, elY + y) = true
     }
 }

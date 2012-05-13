@@ -9,5 +9,5 @@ abstract class Element(val width: Int, val height: Int) {
 }
 
 class Stick extends Element(1, 4) {
-    def blocks = Array((1, 1), (1, 2), (1, 3), (1, 4))
+    def blocks = Array((0, 0), (0, 1), (0, 2), (0, 3))
 }
