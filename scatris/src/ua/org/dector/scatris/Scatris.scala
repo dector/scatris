@@ -80,9 +80,10 @@ object Scatris extends LWSGLApp("Scatris") {
         var canMove = true
         var i = 0
 
+        val leftBlocksX = currElement.leftBlocksX
+
         while (canMove && i < currElement.height) {
-            if (currElement(0, i)
-                    && field(currElementX - 1, currElementY + i)) canMove = false
+            if (field(currElementX + leftBlocksX(i) - 1, currElementY + i)) canMove = false
             i += 1
         }
 
@@ -93,10 +94,10 @@ object Scatris extends LWSGLApp("Scatris") {
         var canMove = true
         var i = 0
 
+        val rightBlocksX = currElement.rightBlocksX
+
         while (canMove && i < currElement.height) {
-            if (currElement(currElement.width - 1, i)
-                    && field(currElementX + currElement.width, currElementY + i))
-                canMove = false
+            if (field(currElementX + rightBlocksX(i) + 1, currElementY + i)) canMove = false
             i += 1
         }
 
