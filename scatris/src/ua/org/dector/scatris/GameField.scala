@@ -23,4 +23,10 @@ class GameField(val width: Int, val height: Int) {
     def append(el: Element, elX: Int, elY: Int) {
         for ((x, y) <- el.blocks) this(elX + x, elY + y) = true
     }
+
+    def clear() {
+        for (i <- 0 until width)
+            for (j <- 0 until height)
+                elements(i)(j) = false;
+    }
 }

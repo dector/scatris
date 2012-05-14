@@ -3,7 +3,6 @@ package ua.org.dector.scatris
 import ua.org.dector.lwsgl.LWSGLApp
 import ua.org.dector.lwsgl.graphics._
 import org.newdawn.slick.Color
-import collection.mutable.Queue
 import org.lwjgl.input.Keyboard
 import util.Random
 
@@ -46,6 +45,11 @@ object Scatris extends LWSGLApp("Scatris") {
         field(i, 1) = true
     for (i <- 0 until (field.width, 3))
         field(i, 2) = true
+
+    private def resetGame() {
+        field.clear()
+        generateNextFallingElement()
+    }
 
     // Game logic procedures
 
@@ -159,10 +163,20 @@ object Scatris extends LWSGLApp("Scatris") {
     // Input procedures
 
     override def detectInput() {
-        if (Keyboard isKeyDown Keyboard.KEY_SPACE) tick()
-        if ((Keyboard isKeyDown Keyboard.KEY_LEFT)
-                && canMoveCurrElementLeft) moveCurrElementLeft()
-        if ((Keyboard isKeyDown Keyboard.KEY_RIGHT)
-                && canMoveCurrElementRight) moveCurrElementRight()
+        while (Keyboard.next()) {
+            Keyboard.getEventKey match {
+                case Keyboard.KEY_DOWN =>
+                   tick()
+                case Keyboard.KEY_LEFT =>
+                    if (Keyboard.getEventKeyState&& canMoveCurrElementLeft)
+                        moveCurrElementLeft()
+                case Keyboard.KEY_RIGHT =>
+                    if (Keyboard.getEventKeyState && canMoveCurrElementRight)
+                        moveCurrElementRight()
+                case Keyboard.KEY_R =>
+                    if (Keyboard.getEventKeyState) resetGame()
+                case _ => {}
+            }
+        }
     }
 }
