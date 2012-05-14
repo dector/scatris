@@ -13,6 +13,7 @@ class GameField(val width: Int, val height: Int) {
 
     def apply(x: Int, y: Int): Boolean = {
         if (isPointCorrect(x, y)) elements(x)(y)
+        else if (0 <= x && x < width) false
         else true
     }
 
