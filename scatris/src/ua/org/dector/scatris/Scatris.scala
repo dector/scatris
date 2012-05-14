@@ -60,8 +60,6 @@ object Scatris extends LWSGLApp("Scatris") {
         tickTime = STARTING_TICK_TIME
     }
 
-    private def getCurrentTime: Long = System.currentTimeMillis
-    
     // Game logic procedures
 
     private def getStartFallingX: Int = (FIELD_X_BLOCKS_NUM / 2).toInt - 1

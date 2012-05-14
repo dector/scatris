@@ -1,7 +1,8 @@
 package ua.org.dector.lwsgl
 
-import org.newdawn.slick.Color
 import org.lwjgl.opengl.GL11._
+import org.newdawn.slick.{Color, Font}
+import GraphicsToolkit._
 
 /**
  * @author dector (dector9@gmail.com)
@@ -39,5 +40,13 @@ package object graphics {
         glVertex2i(xd + width, yd)
         glVertex2i(xd, yd)
         glEnd()
+    }
+
+    def drawText(x: Int, y: Int, text: String, color: Color = DEFAULT_FOREGROUND_COLOR,
+                 font: Font = DEFAULT_FONT) {
+        // TODO: Remake text drawing
+//        glEnable(GL_BLEND)
+        font.drawString(x, y, text, color)
+//        glDisable(GL_BLEND)
     }
 }
