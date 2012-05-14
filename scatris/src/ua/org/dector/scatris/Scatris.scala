@@ -5,6 +5,7 @@ import ua.org.dector.lwsgl.graphics._
 import org.newdawn.slick.Color
 import org.lwjgl.input.Keyboard
 import util.Random
+import collection.mutable.ArrayBuffer
 
 /**
  * @author dector (dector9@gmail.com)
@@ -42,14 +43,6 @@ object Scatris extends LWSGLApp("Scatris") {
     
     private var lastTime = getCurrentTime
     private var tickTime = STARTING_TICK_TIME
-
-    // Mock
-    for (i <- 0 until field.width)
-        field(i, 0) = true
-    for (i <- 0 until (field.width, 2))
-        field(i, 1) = true
-    for (i <- 0 until (field.width, 3))
-        field(i, 2) = true
 
     private def updateLastTime() {lastTime = getCurrentTime}
     
@@ -121,12 +114,89 @@ object Scatris extends LWSGLApp("Scatris") {
     private def moveCurrElementLeft() {currElementX -= 1}
     private def moveCurrElementRight() {currElementX += 1}
 
+    private def checkAndDeleteFullLines() {
+        val linesToDrop = new ArrayBuffer[Int]
+
+        var x = 0
+        var isFull = true
+
+        for (line <- 0 until field.height) {
+            isFull = true
+            x = 0
+
+            while (isFull && x < field.width) {
+                if (! field(x, line)) isFull = false
+                else x += 1
+            }
+
+            if (isFull) linesToDrop += line
+        }
+
+        for (line <- linesToDrop) {
+            for (x <- 0 until field.width) {
+                field(x, line) = false
+            }
+        }
+
+        println("Drop Lines: " + linesToDrop)
+
+        if (! linesToDrop.isEmpty) {
+            val linesToMove = new ArrayBuffer[(Int, Int)]
+
+            var isEmpty = true
+            var dropsCount = 0
+
+            for (line <- 0 until field.height) {
+                isEmpty = true
+                x = 0
+
+                while (isEmpty && x < field.width) {
+                    if (field(x, line)) isEmpty = false
+                    else x += 1
+                }
+
+                if (isEmpty) {
+                    dropsCount += 1
+                    linesToMove += ((line, dropsCount))
+                }
+            }
+
+            println("Move Lines: " + linesToMove)
+
+            var i = 0
+            var lastMove = linesToMove(i)
+            var nextMove = linesToMove(i+1)
+            i += 1
+
+            for (line <- 0 until field.height) {
+                if (line > lastMove._1) {
+                    for (x <- 0 until field.width) {
+                        field(x, line - lastMove._2) = field(x, line)
+                        field(x, line) = false
+                    }
+                }
+                if (line == nextMove._1) {
+                    lastMove = nextMove
+                    i += 1
+
+                    if (i < linesToMove.size) {
+                        nextMove = linesToMove(i)
+                    } else {
+                        nextMove = (field.height, 0)
+                    }
+                }
+            }
+        }
+    }
+
     private def tick() {
         if (currElement != null && canMoveCurrElementDown) {
             moveCurrElementDown()
         } else {
             field.append(currElement, currElementX, currElementY)
             generateNextFallingElement()
+
+            checkAndDeleteFullLines()
         }
     }
 
