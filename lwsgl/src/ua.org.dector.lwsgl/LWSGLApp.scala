@@ -58,6 +58,8 @@ abstract class LWSGLApp(val name: String) {
 
     def detectInput() {}
 
+    def preRenderCount() {}
+
     def render() {}
 
     def execute() {
@@ -67,6 +69,7 @@ abstract class LWSGLApp(val name: String) {
         while (!(done || Display.isCloseRequested)) {
             clear()
             detectInput()
+            preRenderCount()
             render()
             updateDisplay()
         }

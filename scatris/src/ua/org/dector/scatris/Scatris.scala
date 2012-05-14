@@ -31,12 +31,17 @@ object Scatris extends LWSGLApp("Scatris") {
     private val FIELD_X_START = ((displayWidth - FIELD_WIDTH)/2).toInt
     private val FIELD_Y_START = ((displayHeight - FIELD_HEIGHT)/2).toInt
 
+    private val STARTING_TICK_TIME = 500
+
     private val field = new GameField(FIELD_X_BLOCKS_NUM, FIELD_Y_BLOCKS_NUM)
 
     private val elementsPool = Array(new Stick, new Block, new RZip, new LZip, new G)
     private var currElement = getNextFallingElement
     private var currElementX = getStartFallingX
     private var currElementY = getStartFallingY
+    
+    private var lastTime = getCurrentTime
+    private var tickTime = STARTING_TICK_TIME
 
     // Mock
     for (i <- 0 until field.width)
@@ -46,11 +51,17 @@ object Scatris extends LWSGLApp("Scatris") {
     for (i <- 0 until (field.width, 3))
         field(i, 2) = true
 
+    private def updateLastTime() {lastTime = getCurrentTime}
+    
     private def resetGame() {
         field.clear()
         generateNextFallingElement()
+        updateLastTime()
+        tickTime = STARTING_TICK_TIME
     }
 
+    private def getCurrentTime: Long = System.currentTimeMillis
+    
     // Game logic procedures
 
     private def getStartFallingX: Int = (FIELD_X_BLOCKS_NUM / 2).toInt - 1
@@ -136,6 +147,13 @@ object Scatris extends LWSGLApp("Scatris") {
             SMALL_BLOCK_SIZE, SMALL_BLOCK_SIZE, BLOCK_COLOR)
     }
 
+    override def preRenderCount {
+        if (getCurrentTime - lastTime >= tickTime) {
+            updateLastTime()
+            tick()
+        }
+    }
+
     override def render {
         // Draw field
         drawFieldBorder()
@@ -162,7 +180,7 @@ object Scatris extends LWSGLApp("Scatris") {
 
     // Input procedures
 
-    override def detectInput() {
+    override def detectInput {
         while (Keyboard.next()) {
             Keyboard.getEventKey match {
                 case Keyboard.KEY_DOWN =>
