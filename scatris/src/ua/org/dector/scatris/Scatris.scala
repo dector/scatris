@@ -11,6 +11,14 @@ import collection.mutable.ArrayBuffer
  * @author dector (dector9@gmail.com)
  */
 
+object GameState extends Enumeration {
+    type GameState = Value
+
+    val Running, Paused, GameOver = Value
+}
+
+import GameState._
+
 object Scatris extends LWSGLApp("Scatris") {
     private val FIELD_X_BLOCKS_NUM = 10
     private val FIELD_Y_BLOCKS_NUM = 20
@@ -47,13 +55,21 @@ object Scatris extends LWSGLApp("Scatris") {
     private var lastTime = getCurrentTime
     private var tickTime = STARTING_TICK_TIME
 
+    private var gameState = Running
+
     private def updateLastTime() {lastTime = getCurrentTime}
-    
+
+    // Make it DRY - how in scala?
     private def resetGame() {
         field.clear()
         generateNextFallingElement()
         updateLastTime()
         tickTime = STARTING_TICK_TIME
+        gameState = Running
+    }
+
+    private def setGameOverState() {
+        gameState = GameOver
     }
 
     // Game logic procedures
@@ -126,12 +142,14 @@ object Scatris extends LWSGLApp("Scatris") {
     }
 
     private def rotateCurrElementLeft() {
+        currElementX -= currElement.offsetX
         currElement.setPreviousRotation()
         currElementX += currElement.offsetX
         /*currElementY += currElement.offsetY*/ // Commented, cause it is 0
     }
 
     private def rotateCurrElementRight() {
+        currElementX -= currElement.offsetX
         currElement.setNextRotation()
         currElementX += currElement.offsetX
         /*currElementY += currElement.offsetY*/ // Commented, cause it is 0
@@ -143,7 +161,7 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private def dropCurrElementDown() {
         while (canMoveCurrElementDown) moveCurrElementDown()
-        tick()
+        processElementFall()
     }
 
     private def checkAndDeleteFullLines() {
@@ -221,16 +239,24 @@ object Scatris extends LWSGLApp("Scatris") {
         }
     }
 
-    private def tick() {
-        if (currElement != null && canMoveCurrElementDown) {
-            moveCurrElementDown()
+    private def processElementFall() {
+        field.append(currElement, currElementX - currElement.offsetX,
+            currElementY - currElement.offsetY)
+
+        if (field(getStartFallingX, getStartFallingY)) {
+            setGameOverState()
         } else {
-            field.append(currElement, currElementX - currElement.offsetX,
-                currElementY - currElement.offsetY)
             generateNextFallingElement()
 
             checkAndDeleteFullLines()
         }
+    }
+
+    private def tick() {
+        if (currElement != null && canMoveCurrElementDown)
+            moveCurrElementDown()
+        else
+            processElementFall()
     }
 
     private def fallFast() {
@@ -256,7 +282,7 @@ object Scatris extends LWSGLApp("Scatris") {
     }
 
     override def preRenderCount {
-        if (getCurrentTime - lastTime >= tickTime) {
+        if (gameState == Running && getCurrentTime - lastTime >= tickTime) {
             updateLastTime()
             tick()
         }
@@ -273,40 +299,66 @@ object Scatris extends LWSGLApp("Scatris") {
             }
         }
 
-        // Draw falling element
-        if (currElement != null) {
-            var elX, elY = 0
-            for ((x, y) <- currElement.blocks) {
-                elX = currElementX + x
-                elY = currElementY + y
+        if (gameState == Running || gameState == Paused) {
+            // Draw falling element
+            if (currElement != null) {
+                var elX, elY = 0
+                for ((x, y) <- currElement.blocks) {
+                    elX = currElementX + x
+                    elY = currElementY + y
 
-                if (0 <= elX && elX < FIELD_X_BLOCKS_NUM
-                        && 0 <= elY && elY < FIELD_Y_BLOCKS_NUM) drawBlock(elX, elY)
+                    if (0 <= elX && elX < FIELD_X_BLOCKS_NUM
+                            && 0 <= elY && elY < FIELD_Y_BLOCKS_NUM) drawBlock(elX, elY)
+                }
             }
+        } else if (gameState == GameOver) {
+            // Draw "Game Over!" notification
+            // Mock
+            val rectWidth = 200
+            val rectHeight = 150
+
+            val rectX = ((displayWidth - rectWidth) / 2).toInt
+            val rectY = ((displayHeight - rectHeight) / 2).toInt
+            fillRect(rectX, rectY, rectWidth, rectHeight, Color.white)
+            fillRect(rectX + 5, rectY + 5, rectWidth - 10, rectHeight - 10, Color.lightGray)
         }
     }
 
     // Input procedures
 
     override def detectInput {
-        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
-            fallFast();
+        gameState match {
+            case Running => {
+                if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
+                    fallFast();
 
-        while (Keyboard.next && Keyboard.getEventKeyState) {
-            Keyboard.getEventKey match {
-                case Keyboard.KEY_UP =>
-                    if (canRotateCurrElementRight) rotateCurrElementRight()
-                case Keyboard.KEY_LEFT =>
-                    if (Keyboard.getEventKeyState&& canMoveCurrElementLeft)
-                        moveCurrElementLeft()
-                case Keyboard.KEY_RIGHT =>
-                    if (Keyboard.getEventKeyState && canMoveCurrElementRight)
-                        moveCurrElementRight()
-                case Keyboard.KEY_SPACE =>
-                    dropCurrElementDown()
-                case Keyboard.KEY_R =>
-                    if (Keyboard.getEventKeyState) resetGame()
-                case _ => {}
+                while (Keyboard.next && Keyboard.getEventKeyState) {
+                    Keyboard.getEventKey match {
+                        case Keyboard.KEY_UP =>
+                            if (canRotateCurrElementRight) rotateCurrElementRight()
+                        case Keyboard.KEY_LEFT =>
+                            if (Keyboard.getEventKeyState&& canMoveCurrElementLeft)
+                                moveCurrElementLeft()
+                        case Keyboard.KEY_RIGHT =>
+                            if (Keyboard.getEventKeyState && canMoveCurrElementRight)
+                                moveCurrElementRight()
+                        case Keyboard.KEY_SPACE =>
+                            dropCurrElementDown()
+                        case Keyboard.KEY_R =>
+                            if (Keyboard.getEventKeyState) resetGame()
+                        case _ => {}
+                    }
+                }
+            }
+            case Paused => {}
+            case GameOver => {
+                while (Keyboard.next && Keyboard.getEventKeyState) {
+                    Keyboard.getEventKey match {
+                        case Keyboard.KEY_R =>
+                            if (Keyboard.getEventKeyState) resetGame()
+                        case _ => {}
+                    }
+                }
             }
         }
     }
