@@ -50,8 +50,10 @@ object Scatris extends LWSGLApp("Scatris") {
             NEXT_ELEMENT_SHOW_OFFSET_Y) / BIG_BLOCK_SIZE).toInt
 
     private val STARTING_TICK_TIME = 500
-
     private val FAST_FALLING_TICK_TIME = 50
+
+    private val SCORE_PER_CLEARED_LINE = 10
+    private val SCORE_PER_FALLING_LINE = 10 // per falling line down
 
     private val field = new GameField(FIELD_X_BLOCKS_NUM, FIELD_Y_BLOCKS_NUM)
 
@@ -68,6 +70,9 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private var gameState = Running
 
+    private var score = 0
+    private var lines = 0
+
     private def updateLastTime() {lastTime = getCurrentTime}
 
     // Make it DRY - how in scala?
@@ -76,7 +81,10 @@ object Scatris extends LWSGLApp("Scatris") {
         generateNextFallingElement()
         updateLastTime()
         tickTime = STARTING_TICK_TIME
-        gameState = Running
+        gameState = Running // Oh really make it dry??? Not Splash now, yep?
+
+        score = 0
+        lines = 0
     }
 
     private def setGameOverState() {
@@ -147,7 +155,7 @@ object Scatris extends LWSGLApp("Scatris") {
     private def canRotateCurrElementRight: Boolean = {
         var canRotateRight = true
 
-        rotateCurrElementRight
+        rotateCurrElementRight()
         for ((x, y) <- currElement.blocks)
             if (field(currElementX + x, currElementY + y))
                 canRotateRight = false
@@ -208,6 +216,9 @@ object Scatris extends LWSGLApp("Scatris") {
 //        println("Drop Lines: " + linesToDrop)
 
         if (! linesToDrop.isEmpty) {
+            lines += linesToDrop.size
+            score += linesToDrop.size * SCORE_PER_CLEARED_LINE
+
             val linesToMove = new ArrayBuffer[(Int, Int)]
 
             var isEmpty = true
@@ -240,7 +251,10 @@ object Scatris extends LWSGLApp("Scatris") {
                     for (x <- 0 until field.width) {
                         field(x, line - lastMove._2) = field(x, line)
                         field(x, line) = false
+
                     }
+
+//                    score += lastMove._2 * SCORE_PER_FALLING_LINE
                 }
                 if (line == nextMove._1) {
                     lastMove = nextMove
@@ -337,6 +351,9 @@ object Scatris extends LWSGLApp("Scatris") {
 
                 drawBlock(elX, elY)
             }
+
+            // Draw score
+//            println("Score: " + score + " Lines: " + lines)
         } else if (gameState == GameOver) {
             // Draw "Game Over!" notification
             // Mock
