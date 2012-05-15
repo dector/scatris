@@ -36,7 +36,8 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private val field = new GameField(FIELD_X_BLOCKS_NUM, FIELD_Y_BLOCKS_NUM)
 
-    private val elementsPool = Array(new Stick, new Block, new RZip, new LZip, new G)
+    private val elementsPool =
+        Array(new Stick, new Block, new RZip, new LZip, new G, new Seven, new T)
     private var currElement = getNextFallingElement
     private var currElementX = getStartFallingX
     private var currElementY = getStartFallingY
@@ -108,6 +109,26 @@ object Scatris extends LWSGLApp("Scatris") {
         }
 
         canMove
+    }
+
+    private def canRotateCurrElementRight: Boolean = {
+        var canRotateRight = true
+
+        currElement.setNextRotation()
+        for ((x, y) <- currElement.blocks)
+            if (field(currElementX + x, currElementY + y))
+                canRotateRight = false
+        currElement.setPreviousRotation()
+
+        canRotateRight
+    }
+
+    private def rotateCurrElementLeft() {
+        currElement.setPreviousRotation()
+    }
+
+    private def rotateCurrElementRight() {
+        currElement.setNextRotation()
     }
 
     private def moveCurrElementDown() {currElementY -= 1}
@@ -249,7 +270,7 @@ object Scatris extends LWSGLApp("Scatris") {
     // Input procedures
 
     override def detectInput {
-        while (Keyboard.next()) {
+        while (Keyboard.next && Keyboard.getEventKeyState) {
             Keyboard.getEventKey match {
                 case Keyboard.KEY_DOWN =>
                    tick()
@@ -261,6 +282,8 @@ object Scatris extends LWSGLApp("Scatris") {
                         moveCurrElementRight()
                 case Keyboard.KEY_R =>
                     if (Keyboard.getEventKeyState) resetGame()
+                case Keyboard.KEY_UP =>
+                    if (canRotateCurrElementRight) rotateCurrElementRight()
                 case _ => {}
             }
         }
