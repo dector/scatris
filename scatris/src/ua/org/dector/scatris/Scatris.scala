@@ -34,6 +34,8 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private val STARTING_TICK_TIME = 500
 
+    private val FAST_FALLING_TICK_TIME = 50
+
     private val field = new GameField(FIELD_X_BLOCKS_NUM, FIELD_Y_BLOCKS_NUM)
 
     private val elementsPool =
@@ -44,6 +46,7 @@ object Scatris extends LWSGLApp("Scatris") {
     
     private var lastTime = getCurrentTime
     private var tickTime = STARTING_TICK_TIME
+    private var fastFallingTime = getCurrentTime
 
     private def updateLastTime() {lastTime = getCurrentTime}
     
@@ -163,7 +166,7 @@ object Scatris extends LWSGLApp("Scatris") {
             }
         }
 
-        println("Drop Lines: " + linesToDrop)
+//        println("Drop Lines: " + linesToDrop)
 
         if (! linesToDrop.isEmpty) {
             val linesToMove = new ArrayBuffer[(Int, Int)]
@@ -186,7 +189,7 @@ object Scatris extends LWSGLApp("Scatris") {
                 }
             }
 
-            println("Move Lines: " + linesToMove)
+//            println("Move Lines: " + linesToMove)
 
             var i = 0
             var lastMove = linesToMove(i)
@@ -218,10 +221,18 @@ object Scatris extends LWSGLApp("Scatris") {
         if (currElement != null && canMoveCurrElementDown) {
             moveCurrElementDown()
         } else {
-            field.append(currElement, currElementX, currElementY)
+            field.append(currElement, currElementX - currElement.offsetX,
+                currElementY - currElement.offsetY)
             generateNextFallingElement()
 
             checkAndDeleteFullLines()
+        }
+    }
+
+    private def fallFast() {
+        if (getCurrentTime - lastTime >= FAST_FALLING_TICK_TIME) {
+            updateLastTime()
+            tick()
         }
     }
 
@@ -275,7 +286,7 @@ object Scatris extends LWSGLApp("Scatris") {
 
     override def detectInput {
         if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
-            tick();
+            fallFast();
 
         while (Keyboard.next && Keyboard.getEventKeyState) {
             Keyboard.getEventKey match {

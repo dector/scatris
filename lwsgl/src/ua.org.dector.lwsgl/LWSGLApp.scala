@@ -84,7 +84,7 @@ abstract class LWSGLApp(val name: String) {
             fpsTime = currentTime
 
 //            drawText(FPS_DRAWING_X, FPS_DRAWING_Y, "FPS: " + fps.toString)
-            drawText(100, 100, "FPS: " + fps.toString, Color.red)
+//            drawText(100, 100, "FPS: " + fps.toString, Color.red)
         }
     }
 
