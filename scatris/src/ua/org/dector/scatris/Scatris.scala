@@ -40,6 +40,15 @@ object Scatris extends LWSGLApp("Scatris") {
     private val FIELD_X_START = ((displayWidth - FIELD_WIDTH)/2).toInt
     private val FIELD_Y_START = ((displayHeight - FIELD_HEIGHT)/2).toInt
 
+    private val NEXT_ELEMENT_SHOW_WIDTH = 3 * (BIG_BLOCK_SIZE + BLOCK_MARGING)
+    private val NEXT_ELEMENT_SHOW_HEIGHT = 4 * (BIG_BLOCK_SIZE + BLOCK_MARGING)
+    private val NEXT_ELEMENT_SHOW_OFFSET_X = 20
+    private val NEXT_ELEMENT_SHOW_OFFSET_Y = 20 + NEXT_ELEMENT_SHOW_HEIGHT
+    private val NEXT_ELEMENT_SHOW_X_IN_BLOCKS = ((FIELD_WIDTH +
+            NEXT_ELEMENT_SHOW_OFFSET_X) / BIG_BLOCK_SIZE).toInt
+    private val NEXT_ELEMENT_SHOW_Y_IN_BLOCKS = ((FIELD_HEIGHT -
+            NEXT_ELEMENT_SHOW_OFFSET_Y) / BIG_BLOCK_SIZE).toInt
+
     private val STARTING_TICK_TIME = 500
 
     private val FAST_FALLING_TICK_TIME = 50
@@ -48,6 +57,8 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private val elementsPool =
         Array(new Stick, new Block, new RZip, new LZip, new G, new Seven, new T)
+    private var nextElement = getNextFallingElement
+
     private var currElement = getNextFallingElement
     private var currElementX = getStartFallingX
     private var currElementY = getStartFallingY
@@ -82,7 +93,11 @@ object Scatris extends LWSGLApp("Scatris") {
     }
 
     private def generateNextFallingElement() {
-        currElement = getNextFallingElement
+        currElement = nextElement
+        nextElement = getNextFallingElement
+
+        while (currElement eq nextElement) nextElement = getNextFallingElement
+
         currElementX = getStartFallingX
         currElementY = getStartFallingY
     }
@@ -310,6 +325,15 @@ object Scatris extends LWSGLApp("Scatris") {
                     if (0 <= elX && elX < FIELD_X_BLOCKS_NUM
                             && 0 <= elY && elY < FIELD_Y_BLOCKS_NUM) drawBlock(elX, elY)
                 }
+            }
+
+            // Draw next element
+            var elX, elY = 0
+            for ((x, y) <- nextElement.blocks) {
+                elX = NEXT_ELEMENT_SHOW_X_IN_BLOCKS + x
+                elY = NEXT_ELEMENT_SHOW_Y_IN_BLOCKS + y
+
+                drawBlock(elX, elY)
             }
         } else if (gameState == GameOver) {
             // Draw "Game Over!" notification
