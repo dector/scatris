@@ -147,27 +147,29 @@ object Scatris extends LWSGLApp("Scatris") {
     private def canRotateCurrElementRight: Boolean = {
         var canRotateRight = true
 
-        currElement.setNextRotation()
+        rotateCurrElementRight
         for ((x, y) <- currElement.blocks)
             if (field(currElementX + x, currElementY + y))
                 canRotateRight = false
-        currElement.setPreviousRotation()
+        rotateCurrElementLeft()
 
         canRotateRight
     }
 
     private def rotateCurrElementLeft() {
         currElementX -= currElement.offsetX
+        currElementY -= currElement.offsetY
         currElement.setPreviousRotation()
         currElementX += currElement.offsetX
-        /*currElementY += currElement.offsetY*/ // Commented, cause it is 0
+        currElementY += currElement.offsetY
     }
 
     private def rotateCurrElementRight() {
         currElementX -= currElement.offsetX
+        currElementY -= currElement.offsetY
         currElement.setNextRotation()
         currElementX += currElement.offsetX
-        /*currElementY += currElement.offsetY*/ // Commented, cause it is 0
+        currElementY += currElement.offsetY
     }
 
     private def moveCurrElementDown() {currElementY -= 1}
