@@ -22,7 +22,7 @@ class GameField(val width: Int, val height: Int) {
     }
 
     def append(el: Element, elX: Int, elY: Int) {
-        for ((x, y) <- el.blocks) this(elX + x, elY + y) = true
+        for ((x, y) <- el.blocks) this(elX + x + el.offsetX, elY + y + el.offsetY) = true
     }
 
     def clear() {

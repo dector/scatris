@@ -125,10 +125,14 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private def rotateCurrElementLeft() {
         currElement.setPreviousRotation()
+        currElementX += currElement.offsetX
+        /*currElementY += currElement.offsetY*/ // Commented, cause it is 0
     }
 
     private def rotateCurrElementRight() {
         currElement.setNextRotation()
+        currElementX += currElement.offsetX
+        /*currElementY += currElement.offsetY*/ // Commented, cause it is 0
     }
 
     private def moveCurrElementDown() {currElementY -= 1}
@@ -270,10 +274,11 @@ object Scatris extends LWSGLApp("Scatris") {
     // Input procedures
 
     override def detectInput {
+        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
+            tick();
+
         while (Keyboard.next && Keyboard.getEventKeyState) {
             Keyboard.getEventKey match {
-                case Keyboard.KEY_DOWN =>
-                   tick()
                 case Keyboard.KEY_LEFT =>
                     if (Keyboard.getEventKeyState&& canMoveCurrElementLeft)
                         moveCurrElementLeft()

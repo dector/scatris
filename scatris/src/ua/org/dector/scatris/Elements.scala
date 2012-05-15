@@ -34,6 +34,9 @@ abstract class Element(private val _width: Int, private val _height: Int) {
     def leftBlocksX: Array[Int]
     def rightBlocksX: Array[Int]
 
+    def offsetX: Int
+    def offsetY: Int
+
     def setNextRotation() {
         rotation match {
             case DEG0   => rotation = DEG90
@@ -85,6 +88,15 @@ class Stick extends Element(1, 4) {
             case (DEG90 | DEG270) => Array(3)
         }
     }
+
+    def offsetX = {
+        rotation match {
+            case (DEG0 | DEG180) => 0
+            case (DEG90 | DEG270) => -1
+        }
+    }
+
+    def offsetY = 0
 }
 
 class Block extends Element(2, 2) {
@@ -92,6 +104,9 @@ class Block extends Element(2, 2) {
     def bottomBlocksY = Array(0, 0)
     def leftBlocksX = Array(0, 0)
     def rightBlocksX = Array(1, 1)
+
+    def offsetX = 0
+    def offsetY = 0
 }
 
 class RZip extends Element(2, 3) {
@@ -123,6 +138,9 @@ class RZip extends Element(2, 3) {
             case (DEG90 | DEG270) => Array(1, 2)
         }
     }
+
+    def offsetX = 0
+    def offsetY = 0
 }
 
 class LZip extends Element(2, 3) {
@@ -154,6 +172,9 @@ class LZip extends Element(2, 3) {
             case (DEG90 | DEG270) => Array(2, 1)
         }
     }
+
+    def offsetX = 0
+    def offsetY = 0
 }
 
 class G extends Element(2, 3) {
@@ -193,6 +214,9 @@ class G extends Element(2, 3) {
             case DEG270 => Array(2, 0)
         }
     }
+
+    def offsetX = 0
+    def offsetY = 0
 }
 
 class Seven extends Element(2, 3) {
@@ -232,6 +256,9 @@ class Seven extends Element(2, 3) {
             case DEG270 => Array(0, 2)
         }
     }
+
+    def offsetX = 0
+    def offsetY = 0
 }
 
 class T extends Element(3, 2) {
@@ -271,4 +298,7 @@ class T extends Element(3, 2) {
             case DEG270 => Array(0, 1, 0)
         }
     }
+
+    def offsetX = 0
+    def offsetY = 0
 }
