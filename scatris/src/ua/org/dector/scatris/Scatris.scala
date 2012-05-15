@@ -46,7 +46,6 @@ object Scatris extends LWSGLApp("Scatris") {
     
     private var lastTime = getCurrentTime
     private var tickTime = STARTING_TICK_TIME
-    private var fastFallingTime = getCurrentTime
 
     private def updateLastTime() {lastTime = getCurrentTime}
     
@@ -141,6 +140,11 @@ object Scatris extends LWSGLApp("Scatris") {
     private def moveCurrElementDown() {currElementY -= 1}
     private def moveCurrElementLeft() {currElementX -= 1}
     private def moveCurrElementRight() {currElementX += 1}
+
+    private def dropCurrElementDown() {
+        while (canMoveCurrElementDown) moveCurrElementDown()
+        tick()
+    }
 
     private def checkAndDeleteFullLines() {
         val linesToDrop = new ArrayBuffer[Int]
@@ -290,16 +294,18 @@ object Scatris extends LWSGLApp("Scatris") {
 
         while (Keyboard.next && Keyboard.getEventKeyState) {
             Keyboard.getEventKey match {
+                case Keyboard.KEY_UP =>
+                    if (canRotateCurrElementRight) rotateCurrElementRight()
                 case Keyboard.KEY_LEFT =>
                     if (Keyboard.getEventKeyState&& canMoveCurrElementLeft)
                         moveCurrElementLeft()
                 case Keyboard.KEY_RIGHT =>
                     if (Keyboard.getEventKeyState && canMoveCurrElementRight)
                         moveCurrElementRight()
+                case Keyboard.KEY_SPACE =>
+                    dropCurrElementDown()
                 case Keyboard.KEY_R =>
                     if (Keyboard.getEventKeyState) resetGame()
-                case Keyboard.KEY_UP =>
-                    if (canRotateCurrElementRight) rotateCurrElementRight()
                 case _ => {}
             }
         }
