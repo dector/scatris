@@ -374,13 +374,23 @@ object Scatris extends LWSGLApp("Scatris") {
         } else if (gameState == GameOver) {
             // Draw "Game Over!" notification
             // Mock
-            val rectWidth = 200
-            val rectHeight = 150
+            val text = "Game Over"
+            val textWidth = GraphicsToolkit.DEFAULT_FONT.getWidth(text)
+            val textHeight = GraphicsToolkit.DEFAULT_FONT.getLineHeight
+            val textX = ((displayWidth - textWidth) / 2).toInt
+            val textY = ((displayHeight - textHeight) / 2).toInt
 
-            val rectX = ((displayWidth - rectWidth) / 2).toInt
-            val rectY = ((displayHeight - rectHeight) / 2).toInt
-            fillRect(rectX, rectY, rectWidth, rectHeight, Color.white)
-            fillRect(rectX + 5, rectY + 5, rectWidth - 10, rectHeight - 10, Color.lightGray)
+            val rectWidth = textWidth + 20
+            val rectHeight = textHeight + 20
+
+            val rectX = textX - 10
+            val rectY = textY - 10
+            fillRect(rectX, rectY, rectWidth, rectHeight, Color.black)
+            drawRect(rectX, rectY, rectWidth, rectHeight, Color.lightGray)
+
+            beginTextDrawing()
+                drawText(textX, textY, text)
+            endTextDrawing()
         } else if (gameState == Splash) {
             // Why it isn't drawing from 0:0 ?
 //            drawImage(SPLASH_IMAGE_X, SPLASH_IMAGE_Y - 32, SPLASH_IMAGE.getTextureWidth,
