@@ -3,6 +3,9 @@ package ua.org.dector.scatris
 import ua.org.dector.lwsgl.LWSGLApp
 import ua.org.dector.lwsgl.graphics._
 import org.newdawn.slick.Color
+import org.newdawn.slick.opengl.{Texture, TextureLoader}
+import org.lwjgl.opengl.GL11
+import org.newdawn.slick.util.ResourceLoader
 import org.lwjgl.input.Keyboard
 import util.Random
 import collection.mutable.ArrayBuffer
@@ -14,7 +17,7 @@ import collection.mutable.ArrayBuffer
 object GameState extends Enumeration {
     type GameState = Value
 
-    val Running, Paused, GameOver = Value
+    val Splash, Running, Paused, GameOver = Value
 }
 
 import GameState._
@@ -51,9 +54,17 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private val STARTING_TICK_TIME = 500
     private val FAST_FALLING_TICK_TIME = 50
+    private val SPEEDUP_FALLING = 0.25f
 
     private val SCORE_PER_CLEARED_LINE = 10
     private val SCORE_PER_FALLING_LINE = 10 // per falling line down
+
+    private val SPLASH_IMAGE_FORMAT = "PNG"
+    private val SPLASH_IMAGE_FILE = "scatris.png"
+    private var SPLASH_IMAGE: Texture = null
+    private var SPLASH_IMAGE_X = 0
+    private var SPLASH_IMAGE_Y = 0
+
 
     private val field = new GameField(FIELD_X_BLOCKS_NUM, FIELD_Y_BLOCKS_NUM)
 
@@ -68,7 +79,7 @@ object Scatris extends LWSGLApp("Scatris") {
     private var lastTime = getCurrentTime
     private var tickTime = STARTING_TICK_TIME
 
-    private var gameState = Running
+    private var gameState = Splash
 
     private var score = 0
     private var lines = 0
@@ -87,9 +98,9 @@ object Scatris extends LWSGLApp("Scatris") {
         lines = 0
     }
 
-    private def setGameOverState() {
-        gameState = GameOver
-    }
+    private def play() { gameState = Running; resetGame() }
+
+    private def setGameOverState() { gameState = GameOver }
 
     // Game logic procedures
 
@@ -320,13 +331,15 @@ object Scatris extends LWSGLApp("Scatris") {
     }
 
     override def render {
-        // Draw field
-        drawFieldBorder()
+        if (gameState == Running || gameState == Paused || gameState == GameOver) {
+            // Draw field
+            drawFieldBorder()
 
-        for (x <- 0 until field.width) {
-            for (y <- 0 until field.height) {
-                if (field(x, y))
-                    drawBlock(x, y)
+            for (x <- 0 until field.width) {
+                for (y <- 0 until field.height) {
+                    if (field(x, y))
+                        drawBlock(x, y)
+                }
             }
         }
 
@@ -364,6 +377,15 @@ object Scatris extends LWSGLApp("Scatris") {
             val rectY = ((displayHeight - rectHeight) / 2).toInt
             fillRect(rectX, rectY, rectWidth, rectHeight, Color.white)
             fillRect(rectX + 5, rectY + 5, rectWidth - 10, rectHeight - 10, Color.lightGray)
+        } else if (gameState == Splash) {
+            // Why it isn't drawing from 0:0 ?
+//            drawImage(0, 0 - 32, SPLASH_IMAGE.getTextureWidth,
+//                SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE)
+
+//            println("Press <Space> to start")
+
+            drawImage(SPLASH_IMAGE_X, SPLASH_IMAGE_Y - 32, SPLASH_IMAGE.getTextureWidth,
+                SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE)
         }
     }
 
@@ -373,7 +395,7 @@ object Scatris extends LWSGLApp("Scatris") {
         gameState match {
             case Running => {
                 if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
-                    fallFast();
+                    fallFast()
 
                 while (Keyboard.next && Keyboard.getEventKeyState) {
                     Keyboard.getEventKey match {
@@ -403,6 +425,20 @@ object Scatris extends LWSGLApp("Scatris") {
                     }
                 }
             }
+            case Splash => {
+                while (Keyboard.next) {
+                    if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
+                        play()
+                }
+            }
         }
+    }
+
+    override def loadResources() {
+        SPLASH_IMAGE = TextureLoader.getTexture(SPLASH_IMAGE_FORMAT,
+            ResourceLoader.getResourceAsStream(SPLASH_IMAGE_FILE))
+
+        SPLASH_IMAGE_X = ((displayWidth - SPLASH_IMAGE.getImageWidth) / 2).toInt
+        SPLASH_IMAGE_Y = ((displayHeight - SPLASH_IMAGE.getImageHeight) / 2).toInt
     }
 }

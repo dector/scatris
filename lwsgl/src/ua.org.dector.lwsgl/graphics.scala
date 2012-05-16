@@ -3,6 +3,7 @@ package ua.org.dector.lwsgl
 import org.lwjgl.opengl.GL11._
 import org.newdawn.slick.{Color, Font}
 import GraphicsToolkit._
+import org.newdawn.slick.opengl.Texture
 
 /**
  * @author dector (dector9@gmail.com)
@@ -48,5 +49,23 @@ package object graphics {
 //        glEnable(GL_BLEND)
         font.drawString(x, y, text, color)
 //        glDisable(GL_BLEND)
+    }
+
+    def drawImage(x: Int, y: Int, width: Int, height: Int, image: Texture) {
+        glEnable(GL_TEXTURE_2D)
+        image.bind()
+
+        glBegin(GL_QUADS)
+            glTexCoord2f(0, 0)
+            glVertex2i(x, y + height)
+            glTexCoord2f(1, 0)
+            glVertex2i(x + width, y + height)
+            glTexCoord2f(1, 1)
+            glVertex2i(x + width, y)
+            glTexCoord2f(0, 1)
+            glVertex2i(x, y)
+        glEnd()
+
+        glDisable(GL_TEXTURE_2D)
     }
 }

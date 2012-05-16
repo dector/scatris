@@ -99,7 +99,7 @@ class Stick extends Element(1, 4) {
     def offsetY = {
         rotation match {
             case (DEG0 | DEG180) => 0
-            case (DEG90 | DEG270) => -1
+            case (DEG90 | DEG270) => 1
         }
     }
 }
