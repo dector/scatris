@@ -8,7 +8,7 @@ import org.newdawn.slick.{Color, AngelCodeFont}
 
 object GraphicsToolkit {
     val FONTS_DIR = "res/fonts/"
-    val DEFAULT_FONT_NAME = "Sans32"
+    val DEFAULT_FONT_NAME = "Sans24"
     val FONT_FILE_EXT = ".fnt"
     val FONT_IMAGE_EXT = ".png"
 
@@ -16,5 +16,5 @@ object GraphicsToolkit {
     val DEFAULT_BACKGROUND_COLOR = Color.black
 
     val DEFAULT_FONT = new AngelCodeFont(FONTS_DIR + DEFAULT_FONT_NAME + FONT_FILE_EXT,
-        FONTS_DIR + DEFAULT_FONT_NAME + FONT_IMAGE_EXT)
+        FONTS_DIR + DEFAULT_FONT_NAME + FONT_IMAGE_EXT, true)
 }

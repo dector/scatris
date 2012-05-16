@@ -19,10 +19,10 @@ package object graphics {
     def fillRect(xd: Int, yd: Int, width: Int, height: Int, color: Color) {
         glColor3f(color.r, color.g, color.b)
         glBegin(GL_QUADS)
-        glVertex2i(xd, yd + height)
-        glVertex2i(xd + width, yd + height)
-        glVertex2i(xd + width, yd)
-        glVertex2i(xd, yd)
+            glVertex2i(xd, yd + height)
+            glVertex2i(xd + width, yd + height)
+            glVertex2i(xd + width, yd)
+            glVertex2i(xd, yd)
         glEnd()
     }
 
@@ -36,19 +36,19 @@ package object graphics {
     def drawRect(xd: Int, yd: Int, width: Int, height: Int, color: Color) {
         glColor3f(color.r, color.g, color.b)
         glBegin(GL_LINE_LOOP)
-        glVertex2i(xd, yd + height)
-        glVertex2i(xd + width, yd + height)
-        glVertex2i(xd + width, yd)
-        glVertex2i(xd, yd)
+            glVertex2i(xd, yd + height)
+            glVertex2i(xd + width, yd + height)
+            glVertex2i(xd + width, yd)
+            glVertex2i(xd, yd)
         glEnd()
     }
 
+    def beginTextDrawing() { glEnable(GL_TEXTURE_2D) }
+    def endTextDrawing() { glDisable(GL_TEXTURE_2D) }
+
     def drawText(x: Int, y: Int, text: String, color: Color = DEFAULT_FOREGROUND_COLOR,
                  font: Font = DEFAULT_FONT) {
-        // TODO: Remake text drawing
-//        glEnable(GL_BLEND)
         font.drawString(x, y, text, color)
-//        glDisable(GL_BLEND)
     }
 
     def drawImage(x: Int, y: Int, width: Int, height: Int, image: Texture) {
