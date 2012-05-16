@@ -400,6 +400,32 @@ object Scatris extends LWSGLApp("Scatris") {
                     PRESS_SPACE_TO_START_MSG)
             endTextDrawing()
         }
+
+        if (gameState == Paused) {
+            // Draw "Pause!" notification
+            // Mock
+            val text = "Paused"
+            val text2 = "Press <P> to continue"
+            val textWidth = GraphicsToolkit.DEFAULT_FONT.getWidth(text)
+            val textWidth2 = GraphicsToolkit.DEFAULT_FONT.getWidth(text2)
+            val textHeight = GraphicsToolkit.DEFAULT_FONT.getLineHeight
+            val textX = ((displayWidth - textWidth) / 2).toInt
+            val textX2 = ((displayWidth - textWidth2) / 2).toInt
+            val textY2 = ((displayHeight - textHeight) / 2 - 3/2*textHeight).toInt
+
+            val rectWidth = textWidth + 20
+            val rectHeight = (2.5f * textHeight + 20).toInt
+
+            val rectX = textX - 10
+            val rectY = textY2 - 10
+            fillRect(rectX, rectY, rectWidth, rectHeight, Color.black)
+            drawRect(rectX, rectY, rectWidth, rectHeight, Color.lightGray)
+
+            beginTextDrawing()
+                drawText(textX, textY2 + 3*2/textHeight, text)
+                drawText(textX2, textY2, text2)
+            endTextDrawing()
+        }
     }
 
     // Input procedures
@@ -422,26 +448,47 @@ object Scatris extends LWSGLApp("Scatris") {
                                 moveCurrElementRight()
                         case Keyboard.KEY_SPACE =>
                             dropCurrElementDown()
+                        case Keyboard.KEY_ESCAPE =>
+                            exit()
                         case Keyboard.KEY_R =>
                             if (Keyboard.getEventKeyState) resetGame()
+                        case Keyboard.KEY_P =>
+                            togglePause()
                         case _ => {}
                     }
                 }
             }
-            case Paused => {}
+            case Paused => {
+                while (Keyboard.next && Keyboard.getEventKeyState) {
+                    Keyboard.getEventKey match {
+                        case Keyboard.KEY_ESCAPE =>
+                            exit()
+                        case Keyboard.KEY_P =>
+                            togglePause()
+                        case _ => {}
+                    }
+                }
+            }
             case GameOver => {
                 while (Keyboard.next && Keyboard.getEventKeyState) {
                     Keyboard.getEventKey match {
                         case Keyboard.KEY_R =>
                             if (Keyboard.getEventKeyState) resetGame()
+                        case Keyboard.KEY_ESCAPE =>
+                            exit()
                         case _ => {}
                     }
                 }
             }
             case Splash => {
                 while (Keyboard.next) {
-                    if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
-                        play()
+                    Keyboard.getEventKey match {
+                        case Keyboard.KEY_SPACE =>
+                            play()
+                        case Keyboard.KEY_ESCAPE =>
+                            exit()
+                        case _ => {}
+                    }
                 }
             }
         }
@@ -458,5 +505,9 @@ object Scatris extends LWSGLApp("Scatris") {
                 ((displayWidth - GraphicsToolkit.DEFAULT_FONT.getWidth(PRESS_SPACE_TO_START_MSG))
                         / 2).toInt
         PRESS_SPACE_TO_START_MSG_Y = 2 * GraphicsToolkit.DEFAULT_FONT.getLineHeight
+    }
+
+    private def togglePause() {
+        gameState = Paused
     }
 }

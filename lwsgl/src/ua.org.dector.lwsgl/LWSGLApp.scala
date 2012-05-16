@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11._
 import org.lwjgl.opengl.{Display, DisplayMode}
 import graphics._
 import org.newdawn.slick.{Graphics, Color}
+import org.newdawn.slick.opengl.renderer.Renderer
 
 /**
  * @author dector (dector9@gmail.com)
@@ -123,5 +124,9 @@ abstract class LWSGLApp(val name: String) {
 
     def main(args: Array[String]) {
         execute()
+    }
+
+    def exit() {
+        done = true
     }
 }
