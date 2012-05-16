@@ -46,7 +46,7 @@ object Scatris extends LWSGLApp("Scatris") {
     private val NEXT_ELEMENT_SHOW_WIDTH = 3 * (BIG_BLOCK_SIZE + BLOCK_MARGING)
     private val NEXT_ELEMENT_SHOW_HEIGHT = 4 * (BIG_BLOCK_SIZE + BLOCK_MARGING)
     private val NEXT_ELEMENT_SHOW_OFFSET_X = 20
-    private val NEXT_ELEMENT_SHOW_OFFSET_Y = 20 + NEXT_ELEMENT_SHOW_HEIGHT
+    private val NEXT_ELEMENT_SHOW_OFFSET_Y = 40 + NEXT_ELEMENT_SHOW_HEIGHT
     private val NEXT_ELEMENT_SHOW_X_IN_BLOCKS = ((FIELD_WIDTH +
             NEXT_ELEMENT_SHOW_OFFSET_X) / BIG_BLOCK_SIZE).toInt
     private val NEXT_ELEMENT_SHOW_Y_IN_BLOCKS = ((FIELD_HEIGHT -
@@ -382,10 +382,10 @@ object Scatris extends LWSGLApp("Scatris") {
 //            drawImage(0, 0 - 32, SPLASH_IMAGE.getTextureWidth,
 //                SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE)
 
-//            println("Press <Space> to start")
+            println("Press <Space> to start")
 
-            drawImage(SPLASH_IMAGE_X, SPLASH_IMAGE_Y - 32, SPLASH_IMAGE.getTextureWidth,
-                SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE)
+//            drawImage(SPLASH_IMAGE_X, SPLASH_IMAGE_Y - 32, SPLASH_IMAGE.getTextureWidth,
+//                SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE)
         }
     }
 
