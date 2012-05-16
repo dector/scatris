@@ -1,14 +1,14 @@
 package ua.org.dector.scatris
 
-import ua.org.dector.lwsgl.LWSGLApp
+import ua.org.dector.lwsgl.{GraphicsToolkit, LWSGLApp}
 import ua.org.dector.lwsgl.graphics._
 import org.newdawn.slick.Color
 import org.newdawn.slick.opengl.{Texture, TextureLoader}
-import org.lwjgl.opengl.GL11
 import org.newdawn.slick.util.ResourceLoader
 import org.lwjgl.input.Keyboard
 import util.Random
 import collection.mutable.ArrayBuffer
+
 
 /**
  * @author dector (dector9@gmail.com)
@@ -64,6 +64,10 @@ object Scatris extends LWSGLApp("Scatris") {
     private var SPLASH_IMAGE: Texture = null
     private var SPLASH_IMAGE_X = 0
     private var SPLASH_IMAGE_Y = 0
+
+    private val PRESS_SPACE_TO_START_MSG = "Press <Space> to start"
+    private var PRESS_SPACE_TO_START_MSG_X = 0
+    private var PRESS_SPACE_TO_START_MSG_Y = 0
 
 
     private val field = new GameField(FIELD_X_BLOCKS_NUM, FIELD_Y_BLOCKS_NUM)
@@ -379,13 +383,12 @@ object Scatris extends LWSGLApp("Scatris") {
             fillRect(rectX + 5, rectY + 5, rectWidth - 10, rectHeight - 10, Color.lightGray)
         } else if (gameState == Splash) {
             // Why it isn't drawing from 0:0 ?
-//            drawImage(0, 0 - 32, SPLASH_IMAGE.getTextureWidth,
-//                SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE)
-
-            println("Press <Space> to start")
-
 //            drawImage(SPLASH_IMAGE_X, SPLASH_IMAGE_Y - 32, SPLASH_IMAGE.getTextureWidth,
 //                SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE)
+            beginTextDrawing()
+                drawText(PRESS_SPACE_TO_START_MSG_X, PRESS_SPACE_TO_START_MSG_Y,
+                    PRESS_SPACE_TO_START_MSG)
+            endTextDrawing()
         }
     }
 
@@ -440,5 +443,10 @@ object Scatris extends LWSGLApp("Scatris") {
 
         SPLASH_IMAGE_X = ((displayWidth - SPLASH_IMAGE.getImageWidth) / 2).toInt
         SPLASH_IMAGE_Y = ((displayHeight - SPLASH_IMAGE.getImageHeight) / 2).toInt
+
+        PRESS_SPACE_TO_START_MSG_X =
+                ((displayWidth - GraphicsToolkit.DEFAULT_FONT.getWidth(PRESS_SPACE_TO_START_MSG))
+                        / 2).toInt
+        PRESS_SPACE_TO_START_MSG_Y = 2 * GraphicsToolkit.DEFAULT_FONT.getLineHeight
     }
 }

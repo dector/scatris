@@ -30,8 +30,8 @@ abstract class LWSGLApp(val name: String) {
     private def fps_= (fpsValue: Int) {_fps = fpsValue}
 
     var fpsTime = getCurrentTime
-    val FPS_DRAWING_X = displayHeight - 20
-    val FPS_DRAWING_Y = displayWidth + 5
+    private val FPS_DRAWING_X = 10
+    private var FPS_DRAWING_Y = 0
 
     def getCurrentTime: Long = System.currentTimeMillis
 
@@ -93,16 +93,20 @@ abstract class LWSGLApp(val name: String) {
             fps = (1000 / (currentTime - fpsTime)).toInt
             fpsTime = currentTime
 
-//            drawText(FPS_DRAWING_X, FPS_DRAWING_Y, "FPS: " + fps.toString)
             beginTextDrawing()
-                drawText(100, 100, "FPS: " + fps.toString, Color.white)
+                drawText(FPS_DRAWING_X, FPS_DRAWING_Y, "FPS: " + fps.toString, Color.white)
             endTextDrawing()
         }
+    }
+
+    private def systemLoad() {
+        FPS_DRAWING_Y = displayHeight - GraphicsToolkit.DEFAULT_FONT.getLineHeight - 10
     }
 
     def execute() {
         initDisplay()
         initOGL()
+        systemLoad()
         loadResources()
 
         while (!(done || Display.isCloseRequested)) {
