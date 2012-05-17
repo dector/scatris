@@ -9,7 +9,7 @@ import org.newdawn.slick.{RemixedAngelCodeFont, Color, AngelCodeFont}
 
 object GraphicsToolkit {
     val FONTS_DIR = "res/fonts/"
-    val DEFAULT_FONT_NAME = "Sans24"
+    val DEFAULT_FONT_NAME = "Sans-Light24"
     val FONT_FILE_EXT = ".fnt"
     val FONT_IMAGE_EXT = ".png"
 
@@ -19,5 +19,5 @@ object GraphicsToolkit {
 //    val DEFAULT_FONT = new AngelCodeFont(FONTS_DIR + DEFAULT_FONT_NAME + FONT_FILE_EXT,
 //        FONTS_DIR + DEFAULT_FONT_NAME + FONT_IMAGE_EXT, true)
     val DEFAULT_FONT = new RemixedAngelCodeFont(FONTS_DIR + DEFAULT_FONT_NAME + FONT_FILE_EXT,
-        FONTS_DIR + DEFAULT_FONT_NAME + FONT_IMAGE_EXT, true)
+        FONTS_DIR + DEFAULT_FONT_NAME + FONT_IMAGE_EXT, false)
 }

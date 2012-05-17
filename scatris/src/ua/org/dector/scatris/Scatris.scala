@@ -66,6 +66,7 @@ object Scatris extends LWSGLApp("Scatris") {
     private var SPLASH_IMAGE_Y = 0
 
     private val PRESS_SPACE_TO_START_MSG = "Press <Space> to start"
+//    private val PRESS_SPACE_TO_START_MSG = "The quick brown fox jumps over the lazy dogJ"
     private var PRESS_SPACE_TO_START_MSG_X = 0
     private var PRESS_SPACE_TO_START_MSG_Y = 0
 
@@ -82,6 +83,7 @@ object Scatris extends LWSGLApp("Scatris") {
     
     private var lastTime = getCurrentTime
     private var tickTime = STARTING_TICK_TIME
+    private var pauseTime = 0L
 
     private var gameState = Splash
 
@@ -508,7 +510,12 @@ object Scatris extends LWSGLApp("Scatris") {
     }
 
     private def togglePause() {
-        if (gameState == Running) gameState = Paused
-        else if (gameState == Paused) gameState = Running
+        if (gameState == Running) {
+            gameState = Paused
+            pauseTime = getCurrentTime
+        } else if (gameState == Paused) {
+            gameState = Running
+            lastTime += getCurrentTime - pauseTime
+        }
     }
 }

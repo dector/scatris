@@ -24,7 +24,7 @@ abstract class LWSGLApp(val name: String) {
     val syncRate = DEFAULT_DISPLAY_SYNC_RATE
 
     private var done = false
-    var drawFps = true
+    var drawFps = false
 
     var _fps = 0
     def fps = _fps

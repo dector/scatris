@@ -6,12 +6,10 @@ import org.newdawn.slick.opengl.renderer.SGL;
 import org.newdawn.slick.util.Log;
 import org.newdawn.slick.util.ResourceLoader;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 /**
@@ -38,107 +36,12 @@ public class RemixedAngelCodeFont implements Font {
     /** The caches for rendered lines */
     private ArrayList cache = new ArrayList();
 
-    public RemixedAngelCodeFont(){
-
-    }
-    /**
-     * Create a new font based on a font definition from AngelCode's tool and the font
-     * image generated from the tool.
-     *
-     * @param fntFile The location of the font defnition file
-     * @param image The image to use for the font
-     * @throws SlickException Indicates a failure to load either file
-     */
-    public RemixedAngelCodeFont(String fntFile, Image image) throws SlickException {
-        font = image;
-
-        parseFnt(ResourceLoader.getResourceAsStream(fntFile));
-    }
-
-
-    /**
-     * Create a new font based on a font definition from AngelCode's tool and the font
-     * image generated from the tool.
-     *
-     * @param fntFile The location of the font defnition file
-     * @param imgFile The location of the font image
-     * @throws SlickException Indicates a failure to load either file
-     */
-    public RemixedAngelCodeFont(String fntFile, String imgFile) throws SlickException {
-        font = new Image(imgFile);
-
-        parseFnt(ResourceLoader.getResourceAsStream(fntFile));
-    }
-
-    /**
-     * Create a new font based on a font definition from AngelCode's tool and the font
-     * image generated from the tool.
-     *
-     * @param fntFile The location of the font defnition file
-     * @param image The image to use for the font
-     * @param caching True if this font should use display list caching
-     * @throws SlickException Indicates a failure to load either file
-     */
-    public RemixedAngelCodeFont(String fntFile, Image image, boolean caching) throws SlickException {
-        font = image;
-        displayListCaching = caching;
-        parseFnt(ResourceLoader.getResourceAsStream(fntFile));
-    }
-
-    /**
-     * Create a new font based on a font definition from AngelCode's tool and the font
-     * image generated from the tool.
-     *
-     * @param fntFile The location of the font defnition file
-     * @param imgFile The location of the font image
-     * @param caching True if this font should use display list caching
-     * @throws SlickException Indicates a failure to load either file
-     */
     public RemixedAngelCodeFont(String fntFile, String imgFile, boolean caching) throws SlickException {
-        font = new Image(imgFile);
+        font = new RemixedImage(imgFile);
         displayListCaching = caching;
         parseFnt(ResourceLoader.getResourceAsStream(fntFile));
     }
 
-    /**
-     * Create a new font based on a font definition from AngelCode's tool and the font
-     * image generated from the tool.
-     *
-     * @param name The name to assign to the font image in the image store
-     * @param fntFile The stream of the font defnition file
-     * @param imgFile The stream of the font image
-     * @throws SlickException Indicates a failure to load either file
-     */
-    public RemixedAngelCodeFont(String name, InputStream fntFile, InputStream imgFile) throws SlickException {
-        font = new Image(imgFile, name, false);
-
-        parseFnt(fntFile);
-    }
-
-    /**
-     * Create a new font based on a font definition from AngelCode's tool and the font
-     * image generated from the tool.
-     *
-     * @param name The name to assign to the font image in the image store
-     * @param fntFile The stream of the font defnition file
-     * @param imgFile The stream of the font image
-     * @param caching True if this font should use display list caching
-     * @throws SlickException Indicates a failure to load either file
-     */
-    public RemixedAngelCodeFont(String name, InputStream fntFile, InputStream imgFile, boolean caching) throws SlickException {
-        font = new Image(imgFile, name, false);
-
-        displayListCaching = caching;
-        parseFnt(fntFile);
-    }
-
-    /**
-     * Get kerning information for a particular character pair
-     *
-     * @param first The first character being drawn
-     * @param second The second character being drawn
-     * @param value The kerning distance between the two characters
-     */
     private void setKerning(int first, int second, int value) {
         HashMap secondMap = (HashMap) kerning.get(new Integer(first));
         if (secondMap == null) {
@@ -410,7 +313,7 @@ public class RemixedAngelCodeFont implements Font {
          * map produced by the AngelCode tool.
          */
         public void init() {
-            image = font.getSubImage(x, y, width, height).getFlippedCopy(false , true);
+            image = font.getSubImage(x, y, width, height);
         }
 
         /**
@@ -427,7 +330,7 @@ public class RemixedAngelCodeFont implements Font {
          * @param y The y position at which to draw the text
          */
         public void draw(float x, float y) {
-            image.drawEmbedded(x+xoffset,y+yoffset,width,height);
+            image.drawEmbedded(x + xoffset, y + yoffset, width, height);
         }
     }
 
