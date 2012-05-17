@@ -347,6 +347,22 @@ object Scatris extends LWSGLApp("Scatris") {
                         drawBlock(x, y)
                 }
             }
+
+            // Draw statistics
+            val statX = FIELD_X_START + NEXT_ELEMENT_SHOW_X_IN_BLOCKS * (BIG_BLOCK_SIZE +
+                    BLOCK_MARGING)
+            val statY = FIELD_Y_START + NEXT_ELEMENT_SHOW_Y_IN_BLOCKS * (BIG_BLOCK_SIZE +
+                    BLOCK_MARGING) - 4 * GraphicsToolkit.DEFAULT_FONT.getLineHeight
+
+            val statText2 = "Score: " + score
+            val statText3 = "Lines: " + lines
+            //            val statText1 = "Level: "
+
+            beginTextDrawing()
+                drawText(statX, statY + (1.5f *
+                        GraphicsToolkit.DEFAULT_FONT.getLineHeight).toInt, statText2)
+                drawText(statX, statY, statText3)
+            endTextDrawing()
         }
 
         if (gameState == Running || gameState ==Paused) {

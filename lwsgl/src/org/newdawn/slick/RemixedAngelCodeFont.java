@@ -330,7 +330,7 @@ public class RemixedAngelCodeFont implements Font {
          * @param y The y position at which to draw the text
          */
         public void draw(float x, float y) {
-            image.drawEmbedded(x + xoffset, y + yoffset, width, height);
+            image.drawEmbedded(x + xoffset, y - height + yoffset, width, height);
         }
     }
 
