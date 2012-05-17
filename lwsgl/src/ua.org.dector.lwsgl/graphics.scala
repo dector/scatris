@@ -51,6 +51,12 @@ package object graphics {
         font.drawString(x, y, text, color)
     }
 
+    def drawTranspImage(x: Int, y: Int, width: Int, height: Int, image: Texture,
+                             alpha: Float) {
+        glColor4f(1, 1, 1, alpha)
+        drawImage(x, y, width, height, image)
+    }
+
     def drawImage(x: Int, y: Int, width: Int, height: Int, image: Texture) {
         glEnable(GL_TEXTURE_2D)
         image.bind()

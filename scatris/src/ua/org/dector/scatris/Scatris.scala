@@ -66,6 +66,10 @@ object Scatris extends LWSGLApp("Scatris") {
     private var SPLASH_IMAGE: Texture = null
     private var SPLASH_IMAGE_X = 0
     private var SPLASH_IMAGE_Y = 0
+    private var SPLASH_FADE_TIME = 2000
+    private val SPLASH_FADE_TIME_PAUSE = 500
+    private var SPLASH_FADING_STARTED = false
+    private var SPLASH_FADING_FINISHED = false
 
     private val PRESS_SPACE_TO_START_MSG = "Press <Space> to start"
 //    private val PRESS_SPACE_TO_START_MSG = "The quick brown fox jumps over the lazy dogJ"
@@ -418,9 +422,23 @@ object Scatris extends LWSGLApp("Scatris") {
                 drawText(textX, textY, text, font = GraphicsToolkit.BIG_FONT)
             endTextDrawing()
         } else if (gameState == Splash) {
-            // Why it isn't drawing from 0:0 ?
-//            drawImage(SPLASH_IMAGE_X, SPLASH_IMAGE_Y - 32, SPLASH_IMAGE.getTextureWidth,
-//                SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE)
+            if (! SPLASH_FADING_STARTED) {
+                lastTime = getCurrentTime + SPLASH_FADE_TIME_PAUSE
+                SPLASH_FADING_STARTED = true
+            } else {
+                var alpha = 1f
+
+                if (! SPLASH_FADING_FINISHED) {
+                    alpha = (getCurrentTime - lastTime).toFloat / SPLASH_FADE_TIME
+                    if (alpha > 1) { alpha = 1; SPLASH_FADING_FINISHED = true }
+                }
+
+                // Why it isn't drawing from 0:0 ?
+                drawTranspImage(SPLASH_IMAGE_X, SPLASH_IMAGE_Y - 32, SPLASH_IMAGE.getTextureWidth,
+                    SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE, alpha)
+            }
+
+
             beginTextDrawing()
                 drawText(PRESS_SPACE_TO_START_MSG_X, PRESS_SPACE_TO_START_MSG_Y,
                     PRESS_SPACE_TO_START_MSG)
