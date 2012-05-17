@@ -36,6 +36,8 @@ public class RemixedAngelCodeFont implements Font {
     /** The caches for rendered lines */
     private ArrayList cache = new ArrayList();
 
+    private int minOffset = Integer.MAX_VALUE;
+
     public RemixedAngelCodeFont(String fntFile, String imgFile, boolean caching) throws SlickException {
         font = new RemixedImage(imgFile);
         displayListCaching = caching;
@@ -94,6 +96,13 @@ public class RemixedAngelCodeFont implements Font {
             String common = in.readLine();
             String page = in.readLine();
 
+            StringTokenizer commonTokens = new StringTokenizer(common," =");
+            commonTokens.nextToken(); // common
+            commonTokens.nextToken(); // lineHeight
+            int lineHeight = Integer.parseInt(commonTokens.nextToken());
+
+            boolean updateYOffset = false;
+
             boolean done = false;
             while (!done) {
                 String line = in.readLine();
@@ -106,6 +115,8 @@ public class RemixedAngelCodeFont implements Font {
                     else if (line.startsWith("char")) {
                         CharDef def = parseChar(line);
                         chars[def.id] = def;
+
+                        def.yoffset = lineHeight - def.height - def.yoffset;
                     }
                     if (line.startsWith("kernings c")) {
                         // ignore
@@ -156,6 +167,9 @@ public class RemixedAngelCodeFont implements Font {
         def.xoffset = Integer.parseInt(tokens.nextToken()); // xoffset value
         tokens.nextToken(); // y offset
         def.yoffset = Integer.parseInt(tokens.nextToken()); // yoffset value
+
+        if (def.yoffset < minOffset) { minOffset = def.xoffset; }
+
         tokens.nextToken(); // xadvance
         def.xadvance = Integer.parseInt(tokens.nextToken()); // xadvance
 
@@ -330,7 +344,7 @@ public class RemixedAngelCodeFont implements Font {
          * @param y The y position at which to draw the text
          */
         public void draw(float x, float y) {
-            image.drawEmbedded(x + xoffset, y - height + yoffset, width, height);
+            image.drawEmbedded(x + xoffset, y + yoffset, width, height);
         }
     }
 

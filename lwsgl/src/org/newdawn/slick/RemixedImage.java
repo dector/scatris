@@ -73,16 +73,14 @@ public class RemixedImage extends Image {
     public void drawEmbedded(float x, float y, float width, float height) {
         init();
 
-        y += height;
-
         GL.glTexCoord2f(textureOffsetX, textureOffsetY + textureHeight);
-        GL.glVertex3f(x, y - textureOffsetY, 0);
+        GL.glVertex3f(x, y, 0);
         GL.glTexCoord2f(textureOffsetX + textureWidth, textureOffsetY
                 + textureHeight);
-        GL.glVertex3f(x + width, y - textureOffsetY, 0);
+        GL.glVertex3f(x + width, y, 0);
         GL.glTexCoord2f(textureOffsetX + textureWidth, textureOffsetY);
-        GL.glVertex3f(x + width, y + height - textureOffsetY, 0);
+        GL.glVertex3f(x + width, y + height, 0);
         GL.glTexCoord2f(textureOffsetX, textureOffsetY);
-        GL.glVertex3f(x, y + height - textureOffsetY, 0);
+        GL.glVertex3f(x, y + height, 0);
     }
 }
