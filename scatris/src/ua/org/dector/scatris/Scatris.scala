@@ -347,7 +347,7 @@ object Scatris extends LWSGLApp("Scatris") {
             }
         }
 
-        if (gameState == Running || gameState == Paused) {
+        if (gameState == Running || gameState ==Paused) {
             // Draw falling element
             if (currElement != null) {
                 var elX, elY = 0
@@ -411,18 +411,18 @@ object Scatris extends LWSGLApp("Scatris") {
             val textHeight = GraphicsToolkit.DEFAULT_FONT.getLineHeight
             val textX = ((displayWidth - textWidth) / 2).toInt
             val textX2 = ((displayWidth - textWidth2) / 2).toInt
-            val textY2 = ((displayHeight - textHeight) / 2 - 3/2*textHeight).toInt
+            val textY2 = ((displayHeight - 2.5f*textHeight) / 2).toInt
 
-            val rectWidth = textWidth + 20
+            val rectWidth = textWidth2 + 20
             val rectHeight = (2.5f * textHeight + 20).toInt
 
-            val rectX = textX - 10
+            val rectX = textX2 - 10
             val rectY = textY2 - 10
             fillRect(rectX, rectY, rectWidth, rectHeight, Color.black)
             drawRect(rectX, rectY, rectWidth, rectHeight, Color.lightGray)
 
             beginTextDrawing()
-                drawText(textX, textY2 + 3*2/textHeight, text)
+                drawText(textX, (textY2 + 1.5f*textHeight).toInt, text)
                 drawText(textX2, textY2, text2)
             endTextDrawing()
         }
@@ -508,6 +508,7 @@ object Scatris extends LWSGLApp("Scatris") {
     }
 
     private def togglePause() {
-        gameState = Paused
+        if (gameState == Running) gameState = Paused
+        else if (gameState == Paused) gameState = Running
     }
 }
