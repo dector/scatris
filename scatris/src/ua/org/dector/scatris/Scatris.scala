@@ -54,10 +54,12 @@ object Scatris extends LWSGLApp("Scatris") {
 
     private val STARTING_TICK_TIME = 500
     private val FAST_FALLING_TICK_TIME = 50
-    private val SPEEDUP_FALLING = 0.25f
 
     private val SCORE_PER_CLEARED_LINE = 10
+    private val SCORE_SPEEDUP_COEF = 2
     private val SCORE_PER_FALLING_LINE = 10 // per falling line down
+    private val SPEEDUP_LINE_NUM = 10
+    private val SPEEDUP_FALLING_COEF = 0.85f
 
     private val SPLASH_IMAGE_FORMAT = "PNG"
     private val SPLASH_IMAGE_FILE = "scatris.png"
@@ -236,6 +238,11 @@ object Scatris extends LWSGLApp("Scatris") {
             lines += linesToDrop.size
             score += linesToDrop.size * SCORE_PER_CLEARED_LINE
 
+            if (lines % SPEEDUP_LINE_NUM == 0) {
+                tickTime = (tickTime * SPEEDUP_FALLING_COEF).toInt
+                score *= SCORE_SPEEDUP_COEF
+            }
+
             val linesToMove = new ArrayBuffer[(Int, Int)]
 
             var isEmpty = true
@@ -363,9 +370,8 @@ object Scatris extends LWSGLApp("Scatris") {
                         GraphicsToolkit.DEFAULT_FONT.getLineHeight).toInt, statText2)
                 drawText(statX, statY, statText3)
             endTextDrawing()
-        }
 
-        if (gameState == Running || gameState ==Paused) {
+
             // Draw falling element
             if (currElement != null) {
                 var elX, elY = 0
@@ -389,7 +395,9 @@ object Scatris extends LWSGLApp("Scatris") {
 
             // Draw score
 //            println("Score: " + score + " Lines: " + lines)
-        } else if (gameState == GameOver) {
+        }
+
+        if (gameState == GameOver) {
             // Draw "Game Over!" notification
             // Mock
             val text = "Game Over"
@@ -417,9 +425,7 @@ object Scatris extends LWSGLApp("Scatris") {
                 drawText(PRESS_SPACE_TO_START_MSG_X, PRESS_SPACE_TO_START_MSG_Y,
                     PRESS_SPACE_TO_START_MSG)
             endTextDrawing()
-        }
-
-        if (gameState == Paused) {
+        } else if (gameState == Paused) {
             // Draw "Pause!" notification
             // Mock
             val text = "Paused"
