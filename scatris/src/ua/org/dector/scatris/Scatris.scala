@@ -359,7 +359,7 @@ object Scatris extends LWSGLApp("Scatris") {
             val statX = FIELD_X_START + NEXT_ELEMENT_SHOW_X_IN_BLOCKS * (BIG_BLOCK_SIZE +
                     BLOCK_MARGING)
             val statY = FIELD_Y_START + NEXT_ELEMENT_SHOW_Y_IN_BLOCKS * (BIG_BLOCK_SIZE +
-                    BLOCK_MARGING) - 4 * GraphicsToolkit.DEFAULT_FONT.getLineHeight
+                    BLOCK_MARGING) - 4 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
 
             val statText2 = "Score: " + score
             val statText3 = "Lines: " + lines
@@ -367,7 +367,7 @@ object Scatris extends LWSGLApp("Scatris") {
 
             beginTextDrawing()
                 drawText(statX, statY + (1.5f *
-                        GraphicsToolkit.DEFAULT_FONT.getLineHeight).toInt, statText2)
+                        GraphicsToolkit.MEDIUM_FONT.getLineHeight).toInt, statText2)
                 drawText(statX, statY, statText3)
             endTextDrawing()
 
@@ -401,8 +401,8 @@ object Scatris extends LWSGLApp("Scatris") {
             // Draw "Game Over!" notification
             // Mock
             val text = "Game Over"
-            val textWidth = GraphicsToolkit.DEFAULT_FONT.getWidth(text)
-            val textHeight = GraphicsToolkit.DEFAULT_FONT.getLineHeight
+            val textWidth = GraphicsToolkit.BIG_FONT.getWidth(text)
+            val textHeight = GraphicsToolkit.BIG_FONT.getLineHeight
             val textX = ((displayWidth - textWidth) / 2).toInt
             val textY = ((displayHeight - textHeight) / 2).toInt
 
@@ -415,7 +415,7 @@ object Scatris extends LWSGLApp("Scatris") {
             drawRect(rectX, rectY, rectWidth, rectHeight, Color.lightGray)
 
             beginTextDrawing()
-                drawText(textX, textY, text)
+                drawText(textX, textY, text, font = GraphicsToolkit.BIG_FONT)
             endTextDrawing()
         } else if (gameState == Splash) {
             // Why it isn't drawing from 0:0 ?
@@ -430,9 +430,9 @@ object Scatris extends LWSGLApp("Scatris") {
             // Mock
             val text = "Paused"
             val text2 = "Press <P> to continue"
-            val textWidth = GraphicsToolkit.DEFAULT_FONT.getWidth(text)
-            val textWidth2 = GraphicsToolkit.DEFAULT_FONT.getWidth(text2)
-            val textHeight = GraphicsToolkit.DEFAULT_FONT.getLineHeight
+            val textWidth = GraphicsToolkit.MEDIUM_FONT.getWidth(text)
+            val textWidth2 = GraphicsToolkit.MEDIUM_FONT.getWidth(text2)
+            val textHeight = GraphicsToolkit.MEDIUM_FONT.getLineHeight
             val textX = ((displayWidth - textWidth) / 2).toInt
             val textX2 = ((displayWidth - textWidth2) / 2).toInt
             val textY2 = ((displayHeight - 2.5f*textHeight) / 2).toInt
@@ -526,9 +526,9 @@ object Scatris extends LWSGLApp("Scatris") {
         SPLASH_IMAGE_Y = ((displayHeight - SPLASH_IMAGE.getImageHeight) / 2).toInt
 
         PRESS_SPACE_TO_START_MSG_X =
-                ((displayWidth - GraphicsToolkit.DEFAULT_FONT.getWidth(PRESS_SPACE_TO_START_MSG))
+                ((displayWidth - GraphicsToolkit.MEDIUM_FONT.getWidth(PRESS_SPACE_TO_START_MSG))
                         / 2).toInt
-        PRESS_SPACE_TO_START_MSG_Y = 2 * GraphicsToolkit.DEFAULT_FONT.getLineHeight
+        PRESS_SPACE_TO_START_MSG_Y = 2 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
     }
 
     private def togglePause() {

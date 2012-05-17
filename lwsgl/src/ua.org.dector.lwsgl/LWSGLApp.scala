@@ -101,7 +101,7 @@ abstract class LWSGLApp(val name: String) {
     }
 
     private def systemLoad() {
-        FPS_DRAWING_Y = displayHeight - GraphicsToolkit.DEFAULT_FONT.getLineHeight - 10
+        FPS_DRAWING_Y = displayHeight - GraphicsToolkit.MEDIUM_FONT.getLineHeight - 10
     }
 
     def execute() {

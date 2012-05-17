@@ -47,7 +47,7 @@ package object graphics {
     def endTextDrawing() { glDisable(GL_TEXTURE_2D) }
 
     def drawText(x: Int, y: Int, text: String, color: Color = DEFAULT_FOREGROUND_COLOR,
-                 font: Font = DEFAULT_FONT) {
+                 font: Font = MEDIUM_FONT) {
         font.drawString(x, y, text, color)
     }
 
