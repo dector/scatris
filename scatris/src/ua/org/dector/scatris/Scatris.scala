@@ -1,6 +1,6 @@
 package ua.org.dector.scatris
 
-import ua.org.dector.lwsgl.{GraphicsToolkit, LWSGLApp}
+import ua.org.dector.lwsgl.{GraphicsToolkit, LWSGEApp}
 import ua.org.dector.lwsgl.graphics._
 import org.newdawn.slick.Color
 import org.newdawn.slick.opengl.{Texture, TextureLoader}
@@ -22,7 +22,7 @@ object GameState extends Enumeration {
 
 import GameState._
 
-object Scatris extends LWSGLApp("Scatris") {
+object Scatris extends LWSGEApp("Scatris") {
     private val FIELD_X_BLOCKS_NUM = 10
     private val FIELD_Y_BLOCKS_NUM = 20
 
