@@ -1,17 +1,18 @@
 package ua.org.dector.scatris
 
-import org.newdawn.slick.Color
 import org.newdawn.slick.opengl.{Texture, TextureLoader}
 import org.newdawn.slick.util.ResourceLoader
 import org.lwjgl.input.Keyboard
 
 import ua.org.dector.lwsge._
 import common.Config
-import Constants._
+import LWSGEConstants._
+import ScatrisConstants._
 import time.TimerManager
 import ua.org.dector.lwsge.graphics._
 import util.Random
 import collection.mutable.ArrayBuffer
+import org.newdawn.slick.Color
 
 
 /**
@@ -27,61 +28,18 @@ object GameState extends Enumeration {
 import GameState._
 
 object Scatris extends LWSGEApp("Scatris") {
-    private val FIELD_X_BLOCKS_NUM = 10
-    private val FIELD_Y_BLOCKS_NUM = 20
+    init()
 
-    private val BLOCK_COLOR = Color.lightGray
+    private val TICK_TIMER = "Tick Timer"
+    private val FADING_TIMER = "Fading Timer"
+    private val LEFT_MOVE_TIMER = "Left Move Timer"
+    private val RIGHT_MOVE_TIMER = "Right Move Timer"
 
-    private val BIG_BLOCK_SIZE = 20
-    private val SMALL_BLOCK_SIZE = 10
-    private val BLOCK_MARGING = 2
-    private val BLOCKS_DIFF_PLACE = ((BIG_BLOCK_SIZE - SMALL_BLOCK_SIZE) / 2).toInt
+    private val field = new GameField(Config.i(FIELD_X_BLOCKS_NUM),
+        Config.i(FIELD_Y_BLOCKS_NUM))
 
-    private val FIELD_X_PADDING = 5
-    private val FIELD_Y_PADDING = 10
-    private val FIELD_WIDTH = FIELD_X_BLOCKS_NUM * (BIG_BLOCK_SIZE + BLOCK_MARGING) +
-                                2*FIELD_X_PADDING
-    private val FIELD_HEIGHT = FIELD_Y_BLOCKS_NUM * (BIG_BLOCK_SIZE + BLOCK_MARGING) +
-                                2*FIELD_Y_PADDING
-
-    private val FIELD_X_START = ((Config(CONFIG_DISPLAY_WIDTH).toInt - FIELD_WIDTH)/2).toInt
-    private val FIELD_Y_START = ((Config(CONFIG_DISPLAY_HEIGHT).toInt - FIELD_HEIGHT)/2).toInt
-
-    private val NEXT_ELEMENT_SHOW_WIDTH = 3 * (BIG_BLOCK_SIZE + BLOCK_MARGING)
-    private val NEXT_ELEMENT_SHOW_HEIGHT = 4 * (BIG_BLOCK_SIZE + BLOCK_MARGING)
-    private val NEXT_ELEMENT_SHOW_OFFSET_X = 20
-    private val NEXT_ELEMENT_SHOW_OFFSET_Y = 40 + NEXT_ELEMENT_SHOW_HEIGHT
-    private val NEXT_ELEMENT_SHOW_X_IN_BLOCKS = ((FIELD_WIDTH +
-            NEXT_ELEMENT_SHOW_OFFSET_X) / BIG_BLOCK_SIZE).toInt
-    private val NEXT_ELEMENT_SHOW_Y_IN_BLOCKS = ((FIELD_HEIGHT -
-            NEXT_ELEMENT_SHOW_OFFSET_Y) / BIG_BLOCK_SIZE).toInt
-
-    private val STARTING_TICK_TIME = 500
-    private val FAST_FALLING_TICK_COEF = 0.12f
-
-    private val SCORE_PER_CLEARED_LINE = 10
-    private val SCORE_SPEEDUP_COEF = 2
-    private val SCORE_PER_FALLING_LINE = 10 // per falling line down
-    private val SPEEDUP_LINE_NUM = 10
-    private val SPEEDUP_FALLING_COEF = 0.85f
-
-    private val SPLASH_IMAGE_FORMAT = "PNG"
-    private val SPLASH_IMAGE_FILE = "scatris.png"
-    private var SPLASH_IMAGE: Texture = null
-    private var SPLASH_IMAGE_X = 0
-    private var SPLASH_IMAGE_Y = 0
-    private val SPLASH_FADE_TIME = 2000
-    private val SPLASH_FADE_TIME_PAUSE = 500
-    private var SPLASH_FADING_STARTED = false
-    private var SPLASH_FADING_FINISHED = false
-
-    private val PRESS_SPACE_TO_START_MSG = "Press <Space> to start"
-//    private val PRESS_SPACE_TO_START_MSG = "The quick brown fox jumps over the lazy dogJ"
-    private var PRESS_SPACE_TO_START_MSG_X = 0
-    private var PRESS_SPACE_TO_START_MSG_Y = 0
-
-
-    private val field = new GameField(FIELD_X_BLOCKS_NUM, FIELD_Y_BLOCKS_NUM)
+    private var splashFadingStarted = false
+    private var splashFadingFinished = false
 
     private val elementsPool =
         Array(new Stick, new Block, new RZip, new LZip, new G, new Seven, new T)
@@ -91,20 +49,73 @@ object Scatris extends LWSGEApp("Scatris") {
     private var currElementX = getStartFallingX
     private var currElementY = getStartFallingY
 
-    private val TICK_TIMER = "Tick Timer"
-    private val FADING_TIMER = "Fading Timer"
-    private val LEFT_MOVE_TIMER = "Left Move Timer"
-    private val RIGHT_MOVE_TIMER = "Right Move Timer"
-
-    private val LEFT_MOVE_TIME_BOUND = 80
-    private val RIGHT_MOVE_TIME_BOUND = 80
-
-    private var tickTimeBound = STARTING_TICK_TIME
+    private var tickTimeBound = Config.i(STARTING_TICK_TIME)
 
     private var gameState = Splash
 
     private var score = 0
     private var lines = 0
+
+    private def init() {
+        Config(FIELD_X_BLOCKS_NUM)      = 10
+        Config(FIELD_Y_BLOCKS_NUM)      = 20
+
+        Config(BIG_BLOCK_SIZE)          = 20
+        Config(SMALL_BLOCK_SIZE)        = 10
+        Config(BLOCK_MARGING)           = 2
+
+        Config(FIELD_X_PADDING)         = 5
+        Config(FIELD_Y_PADDING)         = 10
+
+        Config(BLOCK_COLOR)             = Color.lightGray
+
+        Config(BLOCKS_DIFF_PLACE)       = ((Config.i(BIG_BLOCK_SIZE) -
+                Config.i(SMALL_BLOCK_SIZE)) / 2).toInt
+
+        Config(FIELD_WIDTH)             = Config.i(FIELD_X_BLOCKS_NUM) *
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
+                2 * Config.i(FIELD_X_PADDING)
+        Config(FIELD_HEIGHT)            = Config.i(FIELD_Y_BLOCKS_NUM) *
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
+                2 * Config.i(FIELD_Y_PADDING)
+
+        Config(FIELD_X_START)           = ((Config.i(DISPLAY_WIDTH) -
+                Config.i(FIELD_WIDTH))/2).toInt
+        Config(FIELD_Y_START)           = ((Config.i(DISPLAY_HEIGHT) -
+                Config.i(FIELD_HEIGHT))/2).toInt
+
+        Config(NEXT_ELEMENT_SHOW_WIDTH)         = 3 *
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING))
+        Config(NEXT_ELEMENT_SHOW_HEIGHT)        = 4 *
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING))
+        Config(NEXT_ELEMENT_SHOW_OFFSET_X)      = 20
+        Config(NEXT_ELEMENT_SHOW_OFFSET_Y)      = 40 +
+                Config.i(NEXT_ELEMENT_SHOW_HEIGHT)
+        Config(NEXT_ELEMENT_SHOW_X_IN_BLOCKS)   = ((Config.i(FIELD_WIDTH) +
+                Config.i(NEXT_ELEMENT_SHOW_OFFSET_X)) / Config.i(BIG_BLOCK_SIZE))
+        Config(NEXT_ELEMENT_SHOW_Y_IN_BLOCKS)   = ((Config.i(FIELD_HEIGHT) -
+                Config.i(NEXT_ELEMENT_SHOW_OFFSET_Y)) / Config.i(BIG_BLOCK_SIZE))
+
+        Config(STARTING_TICK_TIME)      = 500
+        Config(FAST_FALLING_TICK_COEF)  = 0.12f
+
+        Config(SCORE_PER_CLEARED_LINE)  = 10
+        Config(SCORE_SPEEDUP_COEF)      = 2
+        Config(SCORE_PER_FALLING_LINE)  = 10 // per falling line down
+        Config(SPEEDUP_LINE_NUM)        = 10
+        Config(SPEEDUP_FALLING_COEF)    = 0.85f
+
+        Config(SPLASH_IMAGE_FORMAT)     = "PNG"
+        Config(SPLASH_IMAGE_FILE)       = "scatris.png"
+
+        Config(SPLASH_FADE_TIME)        = 2000
+        Config(SPLASH_FADE_TIME_PAUSE)  = 500
+
+        Config(PRESS_SPACE_TO_START_MSG)        = "Press <Space> to start"
+
+        Config(LEFT_MOVE_TIME_BOUND)    = 80
+        Config(RIGHT_MOVE_TIME_BOUND)   = 80
+    }
 
     // Make it DRY - how in scala?
     private def resetGame() {
@@ -115,7 +126,7 @@ object Scatris extends LWSGEApp("Scatris") {
         TimerManager(LEFT_MOVE_TIMER).restart()
         TimerManager(RIGHT_MOVE_TIMER).restart()
 
-        tickTimeBound = STARTING_TICK_TIME
+        tickTimeBound = Config.i(STARTING_TICK_TIME)
         gameState = Running // Oh really make it dry??? Not Splash now, yep?
 
         score = 0
@@ -135,8 +146,8 @@ object Scatris extends LWSGEApp("Scatris") {
 
     // Game logic procedures
 
-    private def getStartFallingX: Int = (FIELD_X_BLOCKS_NUM / 2).toInt - 1
-    private def getStartFallingY: Int = FIELD_Y_BLOCKS_NUM - 1
+    private def getStartFallingX: Int = Config.i(FIELD_X_BLOCKS_NUM) / 2 - 1
+    private def getStartFallingY: Int = Config.i(FIELD_Y_BLOCKS_NUM) - 1
 
     private def getNextFallingElement: Element = {
         elementsPool(Random nextInt elementsPool.size)
@@ -259,11 +270,11 @@ object Scatris extends LWSGEApp("Scatris") {
 
         if (! linesToDrop.isEmpty) {
             lines += linesToDrop.size
-            score += linesToDrop.size * SCORE_PER_CLEARED_LINE
+            score += linesToDrop.size * Config.i(SCORE_PER_CLEARED_LINE)
 
-            if (lines % SPEEDUP_LINE_NUM == 0) {
-                tickTimeBound = (tickTimeBound * SPEEDUP_FALLING_COEF).toInt
-                score *= SCORE_SPEEDUP_COEF
+            if (lines % Config.i(SPEEDUP_LINE_NUM) == 0) {
+                tickTimeBound = (tickTimeBound * Config.f(SPEEDUP_FALLING_COEF)).toInt
+                score *= Config.i(SCORE_SPEEDUP_COEF)
             }
 
             val linesToMove = new ArrayBuffer[(Int, Int)]
@@ -286,8 +297,6 @@ object Scatris extends LWSGEApp("Scatris") {
                 }
             }
 
-//            println("Move Lines: " + linesToMove)
-
             var i = 0
             var lastMove = linesToMove(i)
             var nextMove = linesToMove(i+1)
@@ -300,8 +309,6 @@ object Scatris extends LWSGEApp("Scatris") {
                         field(x, line) = false
 
                     }
-
-//                    score += lastMove._2 * SCORE_PER_FALLING_LINE
                 }
                 if (line == nextMove._1) {
                     lastMove = nextMove
@@ -338,21 +345,24 @@ object Scatris extends LWSGEApp("Scatris") {
     }
 
     private def fallFast() {
-        if (TimerManager(TICK_TIMER).time >= tickTimeBound * FAST_FALLING_TICK_COEF) {
+        if (TimerManager(TICK_TIMER).time >=
+                tickTimeBound * Config.f(FAST_FALLING_TICK_COEF)) {
             tick()
             TimerManager(TICK_TIMER).restart()
         }
     }
 
     private def moveCurrElementLeftByTimer() {
-        if (TimerManager(LEFT_MOVE_TIMER).time >= LEFT_MOVE_TIME_BOUND) {
+        if (TimerManager(LEFT_MOVE_TIMER).time >=
+                Config.i(LEFT_MOVE_TIME_BOUND)) {
             moveCurrElementLeft()
             TimerManager(LEFT_MOVE_TIMER).restart()
         }
     }
 
     private def moveCurrElementRightByTimer() {
-        if (TimerManager(RIGHT_MOVE_TIMER).time >= RIGHT_MOVE_TIME_BOUND) {
+        if (TimerManager(RIGHT_MOVE_TIMER).time >=
+                Config.i(RIGHT_MOVE_TIME_BOUND)) {
             moveCurrElementRight()
             TimerManager(RIGHT_MOVE_TIMER).restart()
         }
@@ -361,16 +371,22 @@ object Scatris extends LWSGEApp("Scatris") {
     // Draw procedures
 
     private def drawFieldBorder() {
-        drawRect(FIELD_X_START, FIELD_Y_START, FIELD_WIDTH, FIELD_HEIGHT, BLOCK_COLOR)
+        drawRect(Config.i(FIELD_X_START), Config.i(FIELD_Y_START),
+            Config.i(FIELD_WIDTH), Config.i(FIELD_HEIGHT),
+            Config(BLOCK_COLOR).asInstanceOf[Color])
     }
 
     private def drawBlock(xNum: Int, yNum: Int) {
-        val x = xNum * (BIG_BLOCK_SIZE + BLOCK_MARGING) + FIELD_X_START + FIELD_X_PADDING
-        val y = yNum * (BIG_BLOCK_SIZE + BLOCK_MARGING) + FIELD_Y_START + FIELD_Y_PADDING
+        val x = xNum * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
+                Config.i(FIELD_X_START) + Config.i(FIELD_X_PADDING)
+        val y = yNum * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
+                Config.i(FIELD_Y_START) + Config.i(FIELD_Y_PADDING)
 
-        drawRect(x, y, BIG_BLOCK_SIZE, BIG_BLOCK_SIZE, BLOCK_COLOR)
-        fillRect(x + BLOCKS_DIFF_PLACE, y + BLOCKS_DIFF_PLACE,
-            SMALL_BLOCK_SIZE, SMALL_BLOCK_SIZE, BLOCK_COLOR)
+        drawRect(x, y, Config.i(BIG_BLOCK_SIZE), Config.i(BIG_BLOCK_SIZE),
+            Config(BLOCK_COLOR).asInstanceOf[Color])
+        fillRect(x + Config.i(BLOCKS_DIFF_PLACE), y + Config.i(BLOCKS_DIFF_PLACE),
+            Config.i(SMALL_BLOCK_SIZE), Config.i(SMALL_BLOCK_SIZE),
+            Config(BLOCK_COLOR).asInstanceOf[Color])
     }
 
     override def preRenderCount {
@@ -393,10 +409,12 @@ object Scatris extends LWSGEApp("Scatris") {
             }
 
             // Draw statistics
-            val statX = FIELD_X_START + NEXT_ELEMENT_SHOW_X_IN_BLOCKS * (BIG_BLOCK_SIZE +
-                    BLOCK_MARGING)
-            val statY = FIELD_Y_START + NEXT_ELEMENT_SHOW_Y_IN_BLOCKS * (BIG_BLOCK_SIZE +
-                    BLOCK_MARGING) - 4 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
+            val statX = Config.i(FIELD_X_START) +
+                    Config.i(NEXT_ELEMENT_SHOW_X_IN_BLOCKS) * (Config.i(BIG_BLOCK_SIZE) +
+                    Config.i(BLOCK_MARGING))
+            val statY = Config.i(FIELD_Y_START) + Config.i(NEXT_ELEMENT_SHOW_Y_IN_BLOCKS) *
+                    (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) -
+                    4 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
 
             val statText2 = "Score: " + score
             val statText3 = "Lines: " + lines
@@ -416,16 +434,17 @@ object Scatris extends LWSGEApp("Scatris") {
                     elX = currElementX + x
                     elY = currElementY + y
 
-                    if (0 <= elX && elX < FIELD_X_BLOCKS_NUM
-                            && 0 <= elY && elY < FIELD_Y_BLOCKS_NUM) drawBlock(elX, elY)
+                    if (0 <= elX && elX < Config.i(FIELD_X_BLOCKS_NUM)
+                            && 0 <= elY && elY < Config.i(FIELD_Y_BLOCKS_NUM))
+                        drawBlock(elX, elY)
                 }
             }
 
             // Draw next element
             var elX, elY = 0
             for ((x, y) <- nextElement.blocks) {
-                elX = NEXT_ELEMENT_SHOW_X_IN_BLOCKS + x
-                elY = NEXT_ELEMENT_SHOW_Y_IN_BLOCKS + y
+                elX = Config.i(NEXT_ELEMENT_SHOW_X_IN_BLOCKS) + x
+                elY = Config.i(NEXT_ELEMENT_SHOW_Y_IN_BLOCKS) + y
 
                 drawBlock(elX, elY)
             }
@@ -440,8 +459,8 @@ object Scatris extends LWSGEApp("Scatris") {
             val text = "Game Over"
             val textWidth = GraphicsToolkit.BIG_FONT.getWidth(text)
             val textHeight = GraphicsToolkit.BIG_FONT.getLineHeight
-            val textX = ((Config(CONFIG_DISPLAY_WIDTH).toInt - textWidth) / 2).toInt
-            val textY = ((Config(CONFIG_DISPLAY_HEIGHT).toInt - textHeight) / 2).toInt
+            val textX = ((Config.i(DISPLAY_WIDTH) - textWidth) / 2).toInt
+            val textY = ((Config.i(DISPLAY_HEIGHT) - textHeight) / 2).toInt
 
             val rectWidth = textWidth + 20
             val rectHeight = textHeight + 20
@@ -455,32 +474,35 @@ object Scatris extends LWSGEApp("Scatris") {
                 drawText(textX, textY, text, font = GraphicsToolkit.BIG_FONT)
             endTextDrawing()
         } else if (gameState == Splash) {
-            if (! SPLASH_FADING_STARTED) {
+            if (! splashFadingStarted) {
                 TimerManager.createTimer(FADING_TIMER).start()
-                TimerManager(FADING_TIMER) -= SPLASH_FADE_TIME_PAUSE
+                TimerManager(FADING_TIMER) -= Config.i(SPLASH_FADE_TIME_PAUSE)
 
-                SPLASH_FADING_STARTED = true
+                splashFadingStarted = true
             } else {
                 var alpha = 1f
 
-                if (! SPLASH_FADING_FINISHED) {
-                    alpha = TimerManager(FADING_TIMER).time.toFloat / SPLASH_FADE_TIME
+                if (! splashFadingFinished) {
+                    alpha = TimerManager(FADING_TIMER).time.toFloat / Config.i(SPLASH_FADE_TIME)
                     if (alpha > 1) {
                         alpha = 1
-                        SPLASH_FADING_FINISHED = true
+                        splashFadingFinished = true
                         TimerManager.destroyTimer(FADING_TIMER)
                     }
                 }
 
                 // Why it isn't drawing from 0:0 ?
-                drawTranspImage(SPLASH_IMAGE_X, SPLASH_IMAGE_Y - 32, SPLASH_IMAGE.getTextureWidth,
-                    SPLASH_IMAGE.getTextureHeight, SPLASH_IMAGE, alpha)
+                drawTranspImage(Config.i(SPLASH_IMAGE_X), Config.i(SPLASH_IMAGE_Y) - 32,
+                    Config(SPLASH_IMAGE).asInstanceOf[Texture].getTextureWidth,
+                    Config(SPLASH_IMAGE).asInstanceOf[Texture].getTextureHeight,
+                    Config(SPLASH_IMAGE).asInstanceOf[Texture], alpha)
             }
 
 
             beginTextDrawing()
-                drawText(PRESS_SPACE_TO_START_MSG_X, PRESS_SPACE_TO_START_MSG_Y,
-                    PRESS_SPACE_TO_START_MSG)
+                drawText(Config.i(PRESS_SPACE_TO_START_MSG_X),
+                    Config.i(PRESS_SPACE_TO_START_MSG_Y),
+                    Config.s(PRESS_SPACE_TO_START_MSG))
             endTextDrawing()
         } else if (gameState == Paused) {
             // Draw "Pause!" notification
@@ -490,9 +512,9 @@ object Scatris extends LWSGEApp("Scatris") {
             val textWidth = GraphicsToolkit.MEDIUM_FONT.getWidth(text)
             val textWidth2 = GraphicsToolkit.MEDIUM_FONT.getWidth(text2)
             val textHeight = GraphicsToolkit.MEDIUM_FONT.getLineHeight
-            val textX = ((Config(CONFIG_DISPLAY_WIDTH).toInt - textWidth) / 2).toInt
-            val textX2 = ((Config(CONFIG_DISPLAY_WIDTH).toInt - textWidth2) / 2).toInt
-            val textY2 = ((Config(CONFIG_DISPLAY_HEIGHT).toInt - 2.5f*textHeight) / 2).toInt
+            val textX = ((Config.i(DISPLAY_WIDTH) - textWidth) / 2).toInt
+            val textX2 = ((Config.i(DISPLAY_WIDTH) - textWidth2) / 2).toInt
+            val textY2 = ((Config.i(DISPLAY_HEIGHT) - 2.5f*textHeight) / 2).toInt
 
             val rectWidth = textWidth2 + 20
             val rectHeight = (2.5f * textHeight + 20).toInt
@@ -580,17 +602,18 @@ object Scatris extends LWSGEApp("Scatris") {
     }
 
     override def loadResources() {
-        SPLASH_IMAGE = TextureLoader.getTexture(SPLASH_IMAGE_FORMAT,
-            ResourceLoader.getResourceAsStream(SPLASH_IMAGE_FILE))
+        Config(SPLASH_IMAGE) = TextureLoader.getTexture(SPLASH_IMAGE_FORMAT,
+            ResourceLoader.getResourceAsStream(Config.s(SPLASH_IMAGE_FILE)))
 
-        SPLASH_IMAGE_X = ((Config(CONFIG_DISPLAY_WIDTH).toInt -
-                SPLASH_IMAGE.getImageWidth) / 2).toInt
-        SPLASH_IMAGE_Y = ((Config(CONFIG_DISPLAY_HEIGHT).toInt -
-                SPLASH_IMAGE.getImageHeight) / 2).toInt
+        Config(SPLASH_IMAGE_X) = ((Config.i(DISPLAY_WIDTH) -
+                Config(SPLASH_IMAGE).asInstanceOf[Texture].getImageWidth) / 2).toInt
+        Config(SPLASH_IMAGE_Y) = ((Config.i(DISPLAY_HEIGHT) -
+                Config(SPLASH_IMAGE).asInstanceOf[Texture].getImageHeight) / 2).toInt
 
-        PRESS_SPACE_TO_START_MSG_X = ((Config(CONFIG_DISPLAY_WIDTH).toInt -
-                GraphicsToolkit.MEDIUM_FONT.getWidth(PRESS_SPACE_TO_START_MSG)) / 2).toInt
-        PRESS_SPACE_TO_START_MSG_Y = 2 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
+        Config(PRESS_SPACE_TO_START_MSG_X) = ((Config.i(DISPLAY_WIDTH) -
+                GraphicsToolkit.MEDIUM_FONT.getWidth(
+                    Config.s(PRESS_SPACE_TO_START_MSG))) /2).toInt
+        Config(PRESS_SPACE_TO_START_MSG_Y) = 2 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
     }
 
     private def togglePause() {

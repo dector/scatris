@@ -4,12 +4,14 @@ import org.lwjgl.opengl.GL11._
 import org.lwjgl.opengl.{Display, DisplayMode}
 import org.newdawn.slick.Color
 
-import Constants._
+import LWSGEConstants._
 import graphics._
 import common.Config
 import time.TimerManager
 
 /**
+ * Root application class. Extend it to create new game
+ *
  * @author dector (dector9@gmail.com)
  */
 
@@ -33,8 +35,8 @@ abstract class LWSGEApp(val name: String) {
     // Methods
 
     def getDisplayMode: DisplayMode = {
-        new DisplayMode(Config(CONFIG_DISPLAY_WIDTH).toInt,
-            Config(CONFIG_DISPLAY_HEIGHT).toInt)
+        new DisplayMode(Config.i(DISPLAY_WIDTH),
+            Config.i(DISPLAY_HEIGHT))
     }
 
     def initDisplay() {
@@ -52,8 +54,8 @@ abstract class LWSGEApp(val name: String) {
 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(0, Config(CONFIG_DISPLAY_WIDTH).toInt,
-            0, Config(CONFIG_DISPLAY_HEIGHT).toInt, -1, 1)
+        glOrtho(0, Config.i(DISPLAY_WIDTH),
+            0, Config.i(DISPLAY_HEIGHT), -1, 1)
         glMatrixMode(GL_MODELVIEW)
 
         glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
@@ -63,7 +65,7 @@ abstract class LWSGEApp(val name: String) {
 
     def updateDisplay() {
         Display.update()
-        Display.sync(Config(CONFIG_DISPLAY_SYNC_RATE).toInt)
+        Display.sync(Config.i(DISPLAY_SYNC_RATE))
     }
 
     def exitHook() {
@@ -81,33 +83,36 @@ abstract class LWSGEApp(val name: String) {
     def renderText() {}
 
     def drawDebug() {
-        if (Config(CONFIG_DRAW_FPS).toBoolean) {
+        if (Config.bool(DRAW_FPS)) {
             val timePassed = TimerManager(FPS_TIMER_ID).time
             fps = (1000 / timePassed).toInt
 
             beginTextDrawing()
-                drawText(Config(CONFIG_DRAW_FPS_X).toInt, Config(CONFIG_DRAW_FPS_Y).toInt,
+                drawText(Config.i(DRAW_FPS_X), Config.i(DRAW_FPS_Y),
                     "FPS: " + fps.toString, Color.white)
             endTextDrawing()
         }
     }
 
     private def systemLoad() {
-        Config(CONFIG_DRAW_FPS_Y) = Config(CONFIG_DISPLAY_HEIGHT).toInt -
+        Config(DRAW_FPS_Y) = Config.i(DISPLAY_HEIGHT) -
                 GraphicsToolkit.MEDIUM_FONT.getLineHeight - 10
         TimerManager.createTimer(FPS_TIMER_ID).start()
     }
 
     private def init() {
         // Load config
-        Config(CONFIG_DRAW_FPS)             = false
-        Config(CONFIG_DISPLAY_WIDTH)        = 640
-        Config(CONFIG_DISPLAY_HEIGHT)       = 480
-        Config(CONFIG_DISPLAY_SYNC_RATE)    = 60
-        Config(CONFIG_DRAW_FPS_X)           = 10
-        Config(CONFIG_DRAW_FPS_Y)           = 0
+        Config(DRAW_FPS)             = false
+        Config(DISPLAY_WIDTH)        = 640
+        Config(DISPLAY_HEIGHT)       = 480
+        Config(DISPLAY_SYNC_RATE)    = 60
+        Config(DRAW_FPS_X)           = 10
+        Config(DRAW_FPS_Y)           = 0
     }
 
+    /**
+     * Main loop
+     */
     def execute() {
         initDisplay()
         initOGL()
