@@ -1,7 +1,8 @@
 package ua.org.dector.scatris
 
-import ua.org.dector.lwsgl.{GraphicsToolkit, LWSGEApp}
-import ua.org.dector.lwsgl.graphics._
+import ua.org.dector.lwsge._
+import time.TimerManager
+import ua.org.dector.lwsge.graphics._
 import org.newdawn.slick.Color
 import org.newdawn.slick.opengl.{Texture, TextureLoader}
 import org.newdawn.slick.util.ResourceLoader
@@ -66,7 +67,7 @@ object Scatris extends LWSGEApp("Scatris") {
     private var SPLASH_IMAGE: Texture = null
     private var SPLASH_IMAGE_X = 0
     private var SPLASH_IMAGE_Y = 0
-    private var SPLASH_FADE_TIME = 2000
+    private val SPLASH_FADE_TIME = 2000
     private val SPLASH_FADE_TIME_PAUSE = 500
     private var SPLASH_FADING_STARTED = false
     private var SPLASH_FADING_FINISHED = false
@@ -86,31 +87,37 @@ object Scatris extends LWSGEApp("Scatris") {
     private var currElement = getNextFallingElement
     private var currElementX = getStartFallingX
     private var currElementY = getStartFallingY
-    
-    private var lastTime = getCurrentTime
-    private var tickTime = STARTING_TICK_TIME
-    private var pauseTime = 0L
+
+    private val TICK_TIMER = "Tick Timer"
+    private val FADING_TIMER = "Fading Timer"
+
+    private var tickTimeBound = STARTING_TICK_TIME
 
     private var gameState = Splash
 
     private var score = 0
     private var lines = 0
 
-    private def updateLastTime() {lastTime = getCurrentTime}
-
     // Make it DRY - how in scala?
     private def resetGame() {
         field.clear()
         generateNextFallingElement()
-        updateLastTime()
-        tickTime = STARTING_TICK_TIME
+
+        TimerManager(TICK_TIMER).restart()
+
+        tickTimeBound = STARTING_TICK_TIME
         gameState = Running // Oh really make it dry??? Not Splash now, yep?
 
         score = 0
         lines = 0
     }
 
-    private def play() { gameState = Running; resetGame() }
+    private def play() {
+        gameState = Running
+        TimerManager.createTimer(TICK_TIMER)
+
+        resetGame()
+    }
 
     private def setGameOverState() { gameState = GameOver }
 
@@ -243,7 +250,7 @@ object Scatris extends LWSGEApp("Scatris") {
             score += linesToDrop.size * SCORE_PER_CLEARED_LINE
 
             if (lines % SPEEDUP_LINE_NUM == 0) {
-                tickTime = (tickTime * SPEEDUP_FALLING_COEF).toInt
+                tickTimeBound = (tickTimeBound * SPEEDUP_FALLING_COEF).toInt
                 score *= SCORE_SPEEDUP_COEF
             }
 
@@ -319,9 +326,9 @@ object Scatris extends LWSGEApp("Scatris") {
     }
 
     private def fallFast() {
-        if (getCurrentTime - lastTime >= FAST_FALLING_TICK_TIME) {
-            updateLastTime()
+        if (TimerManager(TICK_TIMER).time >= FAST_FALLING_TICK_TIME) {
             tick()
+            TimerManager(TICK_TIMER).restart()
         }
     }
 
@@ -341,8 +348,8 @@ object Scatris extends LWSGEApp("Scatris") {
     }
 
     override def preRenderCount {
-        if (gameState == Running && getCurrentTime - lastTime >= tickTime) {
-            updateLastTime()
+        if (gameState == Running && TimerManager(TICK_TIMER).time >= tickTimeBound) {
+            TimerManager(TICK_TIMER).restart()
             tick()
         }
     }
@@ -423,14 +430,20 @@ object Scatris extends LWSGEApp("Scatris") {
             endTextDrawing()
         } else if (gameState == Splash) {
             if (! SPLASH_FADING_STARTED) {
-                lastTime = getCurrentTime + SPLASH_FADE_TIME_PAUSE
+                TimerManager.createTimer(FADING_TIMER).start()
+                TimerManager(FADING_TIMER) -= SPLASH_FADE_TIME_PAUSE
+
                 SPLASH_FADING_STARTED = true
             } else {
                 var alpha = 1f
 
                 if (! SPLASH_FADING_FINISHED) {
-                    alpha = (getCurrentTime - lastTime).toFloat / SPLASH_FADE_TIME
-                    if (alpha > 1) { alpha = 1; SPLASH_FADING_FINISHED = true }
+                    alpha = TimerManager(FADING_TIMER).time.toFloat / SPLASH_FADE_TIME
+                    if (alpha > 1) {
+                        alpha = 1
+                        SPLASH_FADING_FINISHED = true
+                        TimerManager.destroyTimer(FADING_TIMER)
+                    }
                 }
 
                 // Why it isn't drawing from 0:0 ?
@@ -552,10 +565,12 @@ object Scatris extends LWSGEApp("Scatris") {
     private def togglePause() {
         if (gameState == Running) {
             gameState = Paused
-            pauseTime = getCurrentTime
+
+            TimerManager(TICK_TIMER).pause()
         } else if (gameState == Paused) {
             gameState = Running
-            lastTime += getCurrentTime - pauseTime
+
+            TimerManager(TICK_TIMER).start()
         }
     }
 }

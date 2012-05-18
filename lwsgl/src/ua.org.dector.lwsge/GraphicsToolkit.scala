@@ -1,4 +1,4 @@
-package ua.org.dector.lwsgl
+package ua.org.dector.lwsge
 
 import org.newdawn.slick.{RemixedAngelCodeFont, Color, AngelCodeFont}
 

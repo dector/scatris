@@ -1,4 +1,4 @@
-package ua.org.dector.lwsgl
+package ua.org.dector.lwsge
 
 import org.lwjgl.opengl.GL11._
 import org.newdawn.slick.{Color, Font}

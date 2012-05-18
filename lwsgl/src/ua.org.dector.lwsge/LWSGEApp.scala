@@ -1,10 +1,11 @@
-package ua.org.dector.lwsgl
+package ua.org.dector.lwsge
 
 import org.lwjgl.opengl.GL11._
 import org.lwjgl.opengl.{Display, DisplayMode}
 import graphics._
 import org.newdawn.slick.{Graphics, Color}
 import org.newdawn.slick.opengl.renderer.Renderer
+import time.TimerManager
 
 /**
  * @author dector (dector9@gmail.com)
@@ -30,11 +31,10 @@ abstract class LWSGEApp(val name: String) {
     def fps = _fps
     private def fps_= (fpsValue: Int) {_fps = fpsValue}
 
-    var fpsTime = getCurrentTime
+    private val FPS_TIMER_ID = "FPS Timer"
+
     private val FPS_DRAWING_X = 10
     private var FPS_DRAWING_Y = 0
-
-    def getCurrentTime: Long = System.currentTimeMillis
 
     def getDisplayMode: DisplayMode = {
         new DisplayMode(displayWidth, displayHeight)
@@ -90,9 +90,8 @@ abstract class LWSGEApp(val name: String) {
 
     def drawDebug() {
         if (drawFps) {
-            val currentTime = getCurrentTime
-            fps = (1000 / (currentTime - fpsTime)).toInt
-            fpsTime = currentTime
+            val timePassed = TimerManager(FPS_TIMER_ID).time
+            fps = (1000 / timePassed).toInt
 
             beginTextDrawing()
                 drawText(FPS_DRAWING_X, FPS_DRAWING_Y, "FPS: " + fps.toString, Color.white)
@@ -102,6 +101,7 @@ abstract class LWSGEApp(val name: String) {
 
     private def systemLoad() {
         FPS_DRAWING_Y = displayHeight - GraphicsToolkit.MEDIUM_FONT.getLineHeight - 10
+        TimerManager.createTimer(FPS_TIMER_ID).start()
     }
 
     def execute() {
