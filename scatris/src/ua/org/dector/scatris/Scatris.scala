@@ -1,12 +1,15 @@
 package ua.org.dector.scatris
 
-import ua.org.dector.lwsge._
-import time.TimerManager
-import ua.org.dector.lwsge.graphics._
 import org.newdawn.slick.Color
 import org.newdawn.slick.opengl.{Texture, TextureLoader}
 import org.newdawn.slick.util.ResourceLoader
 import org.lwjgl.input.Keyboard
+
+import ua.org.dector.lwsge._
+import common.Config
+import Constants._
+import time.TimerManager
+import ua.org.dector.lwsge.graphics._
 import util.Random
 import collection.mutable.ArrayBuffer
 
@@ -29,9 +32,9 @@ object Scatris extends LWSGEApp("Scatris") {
 
     private val BLOCK_COLOR = Color.lightGray
 
-    private val BLOCK_MARGING = 2
     private val BIG_BLOCK_SIZE = 20
     private val SMALL_BLOCK_SIZE = 10
+    private val BLOCK_MARGING = 2
     private val BLOCKS_DIFF_PLACE = ((BIG_BLOCK_SIZE - SMALL_BLOCK_SIZE) / 2).toInt
 
     private val FIELD_X_PADDING = 5
@@ -41,8 +44,8 @@ object Scatris extends LWSGEApp("Scatris") {
     private val FIELD_HEIGHT = FIELD_Y_BLOCKS_NUM * (BIG_BLOCK_SIZE + BLOCK_MARGING) +
                                 2*FIELD_Y_PADDING
 
-    private val FIELD_X_START = ((displayWidth - FIELD_WIDTH)/2).toInt
-    private val FIELD_Y_START = ((displayHeight - FIELD_HEIGHT)/2).toInt
+    private val FIELD_X_START = ((Config(CONFIG_DISPLAY_WIDTH).toInt - FIELD_WIDTH)/2).toInt
+    private val FIELD_Y_START = ((Config(CONFIG_DISPLAY_HEIGHT).toInt - FIELD_HEIGHT)/2).toInt
 
     private val NEXT_ELEMENT_SHOW_WIDTH = 3 * (BIG_BLOCK_SIZE + BLOCK_MARGING)
     private val NEXT_ELEMENT_SHOW_HEIGHT = 4 * (BIG_BLOCK_SIZE + BLOCK_MARGING)
@@ -54,7 +57,7 @@ object Scatris extends LWSGEApp("Scatris") {
             NEXT_ELEMENT_SHOW_OFFSET_Y) / BIG_BLOCK_SIZE).toInt
 
     private val STARTING_TICK_TIME = 500
-    private val FAST_FALLING_TICK_TIME = 50
+    private val FAST_FALLING_TICK_COEF = 0.12f
 
     private val SCORE_PER_CLEARED_LINE = 10
     private val SCORE_SPEEDUP_COEF = 2
@@ -90,6 +93,11 @@ object Scatris extends LWSGEApp("Scatris") {
 
     private val TICK_TIMER = "Tick Timer"
     private val FADING_TIMER = "Fading Timer"
+    private val LEFT_MOVE_TIMER = "Left Move Timer"
+    private val RIGHT_MOVE_TIMER = "Right Move Timer"
+
+    private val LEFT_MOVE_TIME_BOUND = 80
+    private val RIGHT_MOVE_TIME_BOUND = 80
 
     private var tickTimeBound = STARTING_TICK_TIME
 
@@ -104,6 +112,8 @@ object Scatris extends LWSGEApp("Scatris") {
         generateNextFallingElement()
 
         TimerManager(TICK_TIMER).restart()
+        TimerManager(LEFT_MOVE_TIMER).restart()
+        TimerManager(RIGHT_MOVE_TIMER).restart()
 
         tickTimeBound = STARTING_TICK_TIME
         gameState = Running // Oh really make it dry??? Not Splash now, yep?
@@ -115,6 +125,8 @@ object Scatris extends LWSGEApp("Scatris") {
     private def play() {
         gameState = Running
         TimerManager.createTimer(TICK_TIMER)
+        TimerManager.createTimer(LEFT_MOVE_TIMER)
+        TimerManager.createTimer(RIGHT_MOVE_TIMER)
 
         resetGame()
     }
@@ -326,9 +338,23 @@ object Scatris extends LWSGEApp("Scatris") {
     }
 
     private def fallFast() {
-        if (TimerManager(TICK_TIMER).time >= FAST_FALLING_TICK_TIME) {
+        if (TimerManager(TICK_TIMER).time >= tickTimeBound * FAST_FALLING_TICK_COEF) {
             tick()
             TimerManager(TICK_TIMER).restart()
+        }
+    }
+
+    private def moveCurrElementLeftByTimer() {
+        if (TimerManager(LEFT_MOVE_TIMER).time >= LEFT_MOVE_TIME_BOUND) {
+            moveCurrElementLeft()
+            TimerManager(LEFT_MOVE_TIMER).restart()
+        }
+    }
+
+    private def moveCurrElementRightByTimer() {
+        if (TimerManager(RIGHT_MOVE_TIMER).time >= RIGHT_MOVE_TIME_BOUND) {
+            moveCurrElementRight()
+            TimerManager(RIGHT_MOVE_TIMER).restart()
         }
     }
 
@@ -414,8 +440,8 @@ object Scatris extends LWSGEApp("Scatris") {
             val text = "Game Over"
             val textWidth = GraphicsToolkit.BIG_FONT.getWidth(text)
             val textHeight = GraphicsToolkit.BIG_FONT.getLineHeight
-            val textX = ((displayWidth - textWidth) / 2).toInt
-            val textY = ((displayHeight - textHeight) / 2).toInt
+            val textX = ((Config(CONFIG_DISPLAY_WIDTH).toInt - textWidth) / 2).toInt
+            val textY = ((Config(CONFIG_DISPLAY_HEIGHT).toInt - textHeight) / 2).toInt
 
             val rectWidth = textWidth + 20
             val rectHeight = textHeight + 20
@@ -464,9 +490,9 @@ object Scatris extends LWSGEApp("Scatris") {
             val textWidth = GraphicsToolkit.MEDIUM_FONT.getWidth(text)
             val textWidth2 = GraphicsToolkit.MEDIUM_FONT.getWidth(text2)
             val textHeight = GraphicsToolkit.MEDIUM_FONT.getLineHeight
-            val textX = ((displayWidth - textWidth) / 2).toInt
-            val textX2 = ((displayWidth - textWidth2) / 2).toInt
-            val textY2 = ((displayHeight - 2.5f*textHeight) / 2).toInt
+            val textX = ((Config(CONFIG_DISPLAY_WIDTH).toInt - textWidth) / 2).toInt
+            val textX2 = ((Config(CONFIG_DISPLAY_WIDTH).toInt - textWidth2) / 2).toInt
+            val textY2 = ((Config(CONFIG_DISPLAY_HEIGHT).toInt - 2.5f*textHeight) / 2).toInt
 
             val rectWidth = textWidth2 + 20
             val rectHeight = (2.5f * textHeight + 20).toInt
@@ -490,17 +516,21 @@ object Scatris extends LWSGEApp("Scatris") {
             case Running => {
                 if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
                     fallFast()
+                if (Keyboard.isKeyDown(Keyboard.KEY_LEFT) && canMoveCurrElementLeft)
+                    moveCurrElementLeftByTimer()
+                else if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT) && canMoveCurrElementRight)
+                    moveCurrElementRightByTimer()
 
                 while (Keyboard.next && Keyboard.getEventKeyState) {
                     Keyboard.getEventKey match {
                         case Keyboard.KEY_UP =>
                             if (canRotateCurrElementRight) rotateCurrElementRight()
-                        case Keyboard.KEY_LEFT =>
-                            if (Keyboard.getEventKeyState&& canMoveCurrElementLeft)
-                                moveCurrElementLeft()
-                        case Keyboard.KEY_RIGHT =>
-                            if (Keyboard.getEventKeyState && canMoveCurrElementRight)
-                                moveCurrElementRight()
+//                        case Keyboard.KEY_LEFT =>
+//                            if (Keyboard.getEventKeyState && canMoveCurrElementLeft)
+//                                moveCurrElementLeft()
+//                        case Keyboard.KEY_RIGHT =>
+//                            if (Keyboard.getEventKeyState && canMoveCurrElementRight)
+//                                moveCurrElementRight()
                         case Keyboard.KEY_SPACE =>
                             dropCurrElementDown()
                         case Keyboard.KEY_ESCAPE =>
@@ -553,12 +583,13 @@ object Scatris extends LWSGEApp("Scatris") {
         SPLASH_IMAGE = TextureLoader.getTexture(SPLASH_IMAGE_FORMAT,
             ResourceLoader.getResourceAsStream(SPLASH_IMAGE_FILE))
 
-        SPLASH_IMAGE_X = ((displayWidth - SPLASH_IMAGE.getImageWidth) / 2).toInt
-        SPLASH_IMAGE_Y = ((displayHeight - SPLASH_IMAGE.getImageHeight) / 2).toInt
+        SPLASH_IMAGE_X = ((Config(CONFIG_DISPLAY_WIDTH).toInt -
+                SPLASH_IMAGE.getImageWidth) / 2).toInt
+        SPLASH_IMAGE_Y = ((Config(CONFIG_DISPLAY_HEIGHT).toInt -
+                SPLASH_IMAGE.getImageHeight) / 2).toInt
 
-        PRESS_SPACE_TO_START_MSG_X =
-                ((displayWidth - GraphicsToolkit.MEDIUM_FONT.getWidth(PRESS_SPACE_TO_START_MSG))
-                        / 2).toInt
+        PRESS_SPACE_TO_START_MSG_X = ((Config(CONFIG_DISPLAY_WIDTH).toInt -
+                GraphicsToolkit.MEDIUM_FONT.getWidth(PRESS_SPACE_TO_START_MSG)) / 2).toInt
         PRESS_SPACE_TO_START_MSG_Y = 2 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
     }
 

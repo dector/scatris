@@ -1,4 +1,4 @@
-package ua.org.dector.lwsge.time
+package ua.org.dector.lwsge
 
 /**
  * @author dector (dector9@gmail.com)

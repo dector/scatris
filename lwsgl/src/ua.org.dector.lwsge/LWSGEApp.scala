@@ -2,9 +2,11 @@ package ua.org.dector.lwsge
 
 import org.lwjgl.opengl.GL11._
 import org.lwjgl.opengl.{Display, DisplayMode}
+import org.newdawn.slick.Color
+
+import Constants._
 import graphics._
-import org.newdawn.slick.{Graphics, Color}
-import org.newdawn.slick.opengl.renderer.Renderer
+import common.Config
 import time.TimerManager
 
 /**
@@ -12,32 +14,27 @@ import time.TimerManager
  */
 
 abstract class LWSGEApp(val name: String) {
-    private val DEFAULT_DISPLAY_WIDTH = 640
-    private val DEFAULT_DISPLAY_HEIGHT = 480
-    private val DEFAULT_DISPLAY_SYNC_RATE = 60
+    init()
 
-    val displayWidth = DEFAULT_DISPLAY_WIDTH
-    val displayHeight = DEFAULT_DISPLAY_HEIGHT
-
+    // Private vals
+    val title = name
     val clearColor = Color.black
 
-    val title = name
-    val syncRate = DEFAULT_DISPLAY_SYNC_RATE
-
+    // Repeat main loop
     private var done = false
-    var drawFps = false
 
+    // FPS
     var _fps = 0
     def fps = _fps
     private def fps_= (fpsValue: Int) {_fps = fpsValue}
 
     private val FPS_TIMER_ID = "FPS Timer"
 
-    private val FPS_DRAWING_X = 10
-    private var FPS_DRAWING_Y = 0
+    // Methods
 
     def getDisplayMode: DisplayMode = {
-        new DisplayMode(displayWidth, displayHeight)
+        new DisplayMode(Config(CONFIG_DISPLAY_WIDTH).toInt,
+            Config(CONFIG_DISPLAY_HEIGHT).toInt)
     }
 
     def initDisplay() {
@@ -47,18 +44,16 @@ abstract class LWSGEApp(val name: String) {
     }
 
     def initOGL() {
-//        glEnable(GL_TEXTURE_2D)
         glDisable(GL_DEPTH_TEST)
         glDisable(GL_LIGHTING)
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-//        glViewport(0, 0, displayWidth, displayHeight)
-
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(0, displayWidth, 0, displayHeight, -1, 1)
+        glOrtho(0, Config(CONFIG_DISPLAY_WIDTH).toInt,
+            0, Config(CONFIG_DISPLAY_HEIGHT).toInt, -1, 1)
         glMatrixMode(GL_MODELVIEW)
 
         glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
@@ -68,7 +63,7 @@ abstract class LWSGEApp(val name: String) {
 
     def updateDisplay() {
         Display.update()
-        Display.sync(syncRate)
+        Display.sync(Config(CONFIG_DISPLAY_SYNC_RATE).toInt)
     }
 
     def exitHook() {
@@ -81,27 +76,36 @@ abstract class LWSGEApp(val name: String) {
     }
 
     def detectInput() {}
-
     def preRenderCount() {}
-
     def render() {}
-
     def renderText() {}
 
     def drawDebug() {
-        if (drawFps) {
+        if (Config(CONFIG_DRAW_FPS).toBoolean) {
             val timePassed = TimerManager(FPS_TIMER_ID).time
             fps = (1000 / timePassed).toInt
 
             beginTextDrawing()
-                drawText(FPS_DRAWING_X, FPS_DRAWING_Y, "FPS: " + fps.toString, Color.white)
+                drawText(Config(CONFIG_DRAW_FPS_X).toInt, Config(CONFIG_DRAW_FPS_Y).toInt,
+                    "FPS: " + fps.toString, Color.white)
             endTextDrawing()
         }
     }
 
     private def systemLoad() {
-        FPS_DRAWING_Y = displayHeight - GraphicsToolkit.MEDIUM_FONT.getLineHeight - 10
+        Config(CONFIG_DRAW_FPS_Y) = Config(CONFIG_DISPLAY_HEIGHT).toInt -
+                GraphicsToolkit.MEDIUM_FONT.getLineHeight - 10
         TimerManager.createTimer(FPS_TIMER_ID).start()
+    }
+
+    private def init() {
+        // Load config
+        Config(CONFIG_DRAW_FPS)             = false
+        Config(CONFIG_DISPLAY_WIDTH)        = 640
+        Config(CONFIG_DISPLAY_HEIGHT)       = 480
+        Config(CONFIG_DISPLAY_SYNC_RATE)    = 60
+        Config(CONFIG_DRAW_FPS_X)           = 10
+        Config(CONFIG_DRAW_FPS_Y)           = 0
     }
 
     def execute() {

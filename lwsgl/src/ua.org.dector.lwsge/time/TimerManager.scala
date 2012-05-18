@@ -1,14 +1,13 @@
 package ua.org.dector.lwsge.time
 
 import collection.mutable.HashMap
+import ua.org.dector.lwsge.TimerNotFoundException
 
 /**
  * @author dector (dector9@gmail.com)
  */
 
 object TimerManager {
-    val TIMER_NOT_FOUND = -1L
-
     private val timers = HashMap.empty[String, Timer]
 
     def getCurrentTime = System.currentTimeMillis
