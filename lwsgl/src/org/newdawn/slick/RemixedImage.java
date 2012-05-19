@@ -31,7 +31,7 @@ public class RemixedImage extends Image {
             }
             InternalTextureLoader loader = InternalTextureLoader.get();
             if(loader==null){
-                throw new SlickException("Loader is null,Failed to load image from: "+ref);
+                throw new SlickException("Loader is null, Failed to load image from: "+ref);
             }else{
                 texture = loader.getTexture(ref, flipped,
                         filter == FILTER_LINEAR ? GL11.GL_LINEAR : GL11.GL_NEAREST, trans);

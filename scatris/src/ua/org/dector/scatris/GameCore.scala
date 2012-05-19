@@ -10,11 +10,9 @@ import collection.mutable.ArrayBuffer
 
 import ua.org.dector.lwsge._
 import common.Config
-import LWSGEConstants._
 import time.TimerManager
 import state.StateManager
 import ScatrisConstants._
-import ua.org.dector.scatris.GameCore
 
 /**
  * @author dector (dector9@gmail.com)

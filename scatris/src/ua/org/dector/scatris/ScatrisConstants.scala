@@ -48,6 +48,10 @@ object ScatrisConstants {
     val SPLASH_IMAGE_X          = "splash.image.x"
     val SPLASH_IMAGE_Y          = "splash.image.y"
 
+    val SPLASH_AUTHOR_MSG       = "splash.author.msg"
+    val SPLASH_AUTHOR_MSG_X     = "splash.author.msg.x"
+    val SPLASH_AUTHOR_MSG_Y     = "splash.author.msg.y"
+
     val SPLASH_FADE_TIME        = "splash.fade.time"
     val SPLASH_FADE_TIME_PAUSE  = "splash.fade.time.pause"
 

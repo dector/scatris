@@ -6,8 +6,9 @@ import ua.org.dector.lwsge.graphics._
 import org.newdawn.slick.opengl.Texture
 import ua.org.dector.lwsge.state.{StateManager, GameState}
 import org.lwjgl.input.Keyboard
-import ua.org.dector.lwsge.GameController
 import ua.org.dector.scatris.ScatrisConstants._
+import ua.org.dector.lwsge.{GraphicsToolkit, GameController}
+import ua.org.dector.lwsge.LWSGEConstants._
 
 /**
  * @author dector (dector9@gmail.com)
@@ -18,9 +19,13 @@ object SplashGameState extends GameState("Splash") {
     private var splashFadingFinished = false
     private var alpha = 0f
 
+    private val SPLASH_IMAGE_OFFSET_X = 0
+    private val SPLASH_IMAGE_OFFSET_Y = 30
+
     private val FADING_TIMER = "Fading Timer"
 
     def added() {}
+
     def activate() {}
 
     def preRenderCount() {
@@ -42,16 +47,19 @@ object SplashGameState extends GameState("Splash") {
     }
 
     def render() {
-        // Why it isn't drawing from 0:0 ?
-        drawTranspImage(Config.i(SPLASH_IMAGE_X), Config.i(SPLASH_IMAGE_Y) - 32,
+        drawTranspImage((Config.i(SPLASH_IMAGE_X) +
+                SPLASH_IMAGE_OFFSET_X * (1 - alpha)).toInt,
+            (Config.i(SPLASH_IMAGE_Y) + SPLASH_IMAGE_OFFSET_Y * (1 - alpha)).toInt,
             Config(SPLASH_IMAGE).asInstanceOf[Texture].getTextureWidth,
             Config(SPLASH_IMAGE).asInstanceOf[Texture].getTextureHeight,
         Config(SPLASH_IMAGE).asInstanceOf[Texture], alpha)
 
         beginTextDrawing()
-        drawText(Config.i(PRESS_SPACE_TO_START_MSG_X),
-            Config.i(PRESS_SPACE_TO_START_MSG_Y),
-            Config.s(PRESS_SPACE_TO_START_MSG))
+            drawText(Config.i(PRESS_SPACE_TO_START_MSG_X),
+                Config.i(PRESS_SPACE_TO_START_MSG_Y),
+                Config.s(PRESS_SPACE_TO_START_MSG))
+            drawText(Config.i(SPLASH_AUTHOR_MSG_X), Config.i(SPLASH_AUTHOR_MSG_Y),
+                Config.s(SPLASH_AUTHOR_MSG), font = GraphicsToolkit.SMALL_FONT)
         endTextDrawing()
     }
 

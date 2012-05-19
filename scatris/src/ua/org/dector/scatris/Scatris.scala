@@ -15,7 +15,7 @@ import ua.org.dector.lwsge.LWSGEConstants._
  * @author dector (dector9@gmail.com)
  */
 
-object Scatris extends LWSGEApp("GameCore") {
+object Scatris extends LWSGEApp("Scatris v1.0") {
     init()
 
     private def init() {
@@ -70,8 +70,10 @@ object Scatris extends LWSGEApp("GameCore") {
         Config(SPLASH_IMAGE_FORMAT)     = "PNG"
         Config(SPLASH_IMAGE_FILE)       = "scatris.png"
 
-        Config(SPLASH_FADE_TIME)        = 2000
-        Config(SPLASH_FADE_TIME_PAUSE)  = 500
+        Config(SPLASH_AUTHOR_MSG)       = "by dector, 2012"
+
+        Config(SPLASH_FADE_TIME)        = 900
+        Config(SPLASH_FADE_TIME_PAUSE)  = 300
 
         Config(PRESS_SPACE_TO_START_MSG)        = "Press <Space> to start"
 
@@ -107,6 +109,10 @@ object Scatris extends LWSGEApp("GameCore") {
                 Config(SPLASH_IMAGE).asInstanceOf[Texture].getImageWidth) / 2).toInt
         Config(SPLASH_IMAGE_Y) = ((Config.i(DISPLAY_HEIGHT) -
                 Config(SPLASH_IMAGE).asInstanceOf[Texture].getImageHeight) / 2).toInt
+
+        Config(SPLASH_AUTHOR_MSG_X)     = ((Config.i(DISPLAY_WIDTH) -
+                GraphicsToolkit.SMALL_FONT.getWidth(SPLASH_AUTHOR_MSG)) / 2).toInt
+        Config(SPLASH_AUTHOR_MSG_Y)     = (GraphicsToolkit.SMALL_FONT.getLineHeight / 2).toInt
 
         Config(PRESS_SPACE_TO_START_MSG_X) = ((Config.i(DISPLAY_WIDTH) -
                 GraphicsToolkit.MEDIUM_FONT.getWidth(
