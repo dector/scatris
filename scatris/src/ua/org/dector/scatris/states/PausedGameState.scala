@@ -7,7 +7,7 @@ import org.newdawn.slick.Color
 import ua.org.dector.scatris.ScatrisConstants._
 import org.lwjgl.input.Keyboard
 import ua.org.dector.lwsge.{GameController, GraphicsToolkit}
-import ua.org.dector.scatris.{Scatris, Drawer}
+import ua.org.dector.scatris.{GameCore, Drawer}
 import ua.org.dector.lwsge.state.{StateManager, GameState}
 import ua.org.dector.lwsge.time.TimerManager._
 import ua.org.dector.lwsge.time.TimerManager
@@ -20,9 +20,9 @@ object PausedGameState extends GameState("Paused") {
     def added() {}
 
     def activate() {
-        TimerManager(Scatris.TICK_TIMER).pause()
-        TimerManager(Scatris.LEFT_MOVE_TIMER).pause()
-        TimerManager(Scatris.RIGHT_MOVE_TIMER).pause()
+        TimerManager(GameCore.TICK_TIMER).pause()
+        TimerManager(GameCore.LEFT_MOVE_TIMER).pause()
+        TimerManager(GameCore.RIGHT_MOVE_TIMER).pause()
     }
 
     def preRenderCount() {}

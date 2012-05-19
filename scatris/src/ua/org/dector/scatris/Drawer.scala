@@ -35,9 +35,9 @@ object Drawer {
     private def drawField() {
         drawFieldBorder()
 
-        for (x <- 0 until Scatris.field.width) {
-            for (y <- 0 until Scatris.field.height) {
-                if (Scatris.field(x, y))
+        for (x <- 0 until GameCore.field.width) {
+            for (y <- 0 until GameCore.field.height) {
+                if (GameCore.field(x, y))
                     drawBlock(x, y)
             }
         }
@@ -51,8 +51,8 @@ object Drawer {
                 (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) -
                 4 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
 
-        val statText2 = "Score: " + Scatris.score
-        val statText3 = "Lines: " + Scatris.lines
+        val statText2 = "Score: " + GameCore.score
+        val statText3 = "Lines: " + GameCore.lines
 
         beginTextDrawing()
         drawText(statX, statY + (1.5f *
@@ -62,11 +62,11 @@ object Drawer {
     }
 
     private def drawFallingElement() {
-        if (Scatris.currElement != null) {
+        if (GameCore.currElement != null) {
             var elX, elY = 0
-            for ((x, y) <- Scatris.currElement.blocks) {
-                elX = Scatris.currElementX + x
-                elY = Scatris.currElementY + y
+            for ((x, y) <- GameCore.currElement.blocks) {
+                elX = GameCore.currElementX + x
+                elY = GameCore.currElementY + y
 
                 if (0 <= elX && elX < Config.i(FIELD_X_BLOCKS_NUM)
                         && 0 <= elY && elY < Config.i(FIELD_Y_BLOCKS_NUM))
@@ -77,7 +77,7 @@ object Drawer {
 
     private def drawNextElement() {
         var elX, elY = 0
-        for ((x, y) <- Scatris.nextElement.blocks) {
+        for ((x, y) <- GameCore.nextElement.blocks) {
             elX = Config.i(NEXT_ELEMENT_SHOW_X_IN_BLOCKS) + x
             elY = Config.i(NEXT_ELEMENT_SHOW_Y_IN_BLOCKS) + y
 
