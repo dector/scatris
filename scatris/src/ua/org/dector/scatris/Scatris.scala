@@ -3,17 +3,18 @@ package ua.org.dector.scatris
 import org.newdawn.slick.opengl.{Texture, TextureLoader}
 import org.newdawn.slick.util.ResourceLoader
 import org.lwjgl.input.Keyboard
+import org.newdawn.slick.Color
+
+import util.Random
+import collection.mutable.ArrayBuffer
 
 import ua.org.dector.lwsge._
 import common.Config
 import LWSGEConstants._
 import ScatrisConstants._
 import time.TimerManager
-import ua.org.dector.lwsge.graphics._
-import util.Random
-import collection.mutable.ArrayBuffer
-import org.newdawn.slick.Color
-
+import graphics._
+import state.StateManager
 
 /**
  * @author dector (dector9@gmail.com)
@@ -30,16 +31,13 @@ import GameState._
 object Scatris extends LWSGEApp("Scatris") {
     init()
 
+    // TODO: Remove
     private val TICK_TIMER = "Tick Timer"
-    private val FADING_TIMER = "Fading Timer"
     private val LEFT_MOVE_TIMER = "Left Move Timer"
     private val RIGHT_MOVE_TIMER = "Right Move Timer"
 
     private val field = new GameField(Config.i(FIELD_X_BLOCKS_NUM),
         Config.i(FIELD_Y_BLOCKS_NUM))
-
-    private var splashFadingStarted = false
-    private var splashFadingFinished = false
 
     private val elementsPool =
         Array(new Stick, new Block, new RZip, new LZip, new G, new Seven, new T)
@@ -115,6 +113,9 @@ object Scatris extends LWSGEApp("Scatris") {
 
         Config(LEFT_MOVE_TIME_BOUND)    = 80
         Config(RIGHT_MOVE_TIME_BOUND)   = 80
+
+        StateManager.addState(SplashGameState, RunningGameState)
+        StateManager.currentState = SplashGameState
     }
 
     // Make it DRY - how in scala?
@@ -133,11 +134,9 @@ object Scatris extends LWSGEApp("Scatris") {
         lines = 0
     }
 
-    private def play() {
+    // TODO: Remove
+    def play() {
         gameState = Running
-        TimerManager.createTimer(TICK_TIMER)
-        TimerManager.createTimer(LEFT_MOVE_TIMER)
-        TimerManager.createTimer(RIGHT_MOVE_TIMER)
 
         resetGame()
     }
@@ -474,36 +473,9 @@ object Scatris extends LWSGEApp("Scatris") {
                 drawText(textX, textY, text, font = GraphicsToolkit.BIG_FONT)
             endTextDrawing()
         } else if (gameState == Splash) {
-            if (! splashFadingStarted) {
-                TimerManager.createTimer(FADING_TIMER).start()
-                TimerManager(FADING_TIMER) -= Config.i(SPLASH_FADE_TIME_PAUSE)
-
-                splashFadingStarted = true
-            } else {
-                var alpha = 1f
-
-                if (! splashFadingFinished) {
-                    alpha = TimerManager(FADING_TIMER).time.toFloat / Config.i(SPLASH_FADE_TIME)
-                    if (alpha > 1) {
-                        alpha = 1
-                        splashFadingFinished = true
-                        TimerManager.destroyTimer(FADING_TIMER)
-                    }
-                }
-
-                // Why it isn't drawing from 0:0 ?
-                drawTranspImage(Config.i(SPLASH_IMAGE_X), Config.i(SPLASH_IMAGE_Y) - 32,
-                    Config(SPLASH_IMAGE).asInstanceOf[Texture].getTextureWidth,
-                    Config(SPLASH_IMAGE).asInstanceOf[Texture].getTextureHeight,
-                    Config(SPLASH_IMAGE).asInstanceOf[Texture], alpha)
-            }
-
-
-            beginTextDrawing()
-                drawText(Config.i(PRESS_SPACE_TO_START_MSG_X),
-                    Config.i(PRESS_SPACE_TO_START_MSG_Y),
-                    Config.s(PRESS_SPACE_TO_START_MSG))
-            endTextDrawing()
+            StateManager.currentState.render()
+            if (StateManager.currentState == RunningGameState)
+                gameState = Running
         } else if (gameState == Paused) {
             // Draw "Pause!" notification
             // Mock
@@ -533,7 +505,7 @@ object Scatris extends LWSGEApp("Scatris") {
 
     // Input procedures
 
-    override def detectInput {
+    override def checkInput {
         gameState match {
             case Running => {
                 if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
@@ -588,15 +560,7 @@ object Scatris extends LWSGEApp("Scatris") {
                 }
             }
             case Splash => {
-                while (Keyboard.next) {
-                    Keyboard.getEventKey match {
-                        case Keyboard.KEY_SPACE =>
-                            play()
-                        case Keyboard.KEY_ESCAPE =>
-                            exit()
-                        case _ => {}
-                    }
-                }
+                StateManager.currentState.checkInput()
             }
         }
     }

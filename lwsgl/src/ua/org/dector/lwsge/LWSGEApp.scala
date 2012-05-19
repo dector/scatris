@@ -8,6 +8,7 @@ import LWSGEConstants._
 import graphics._
 import common.Config
 import time.TimerManager
+import java.awt.Canvas
 
 /**
  * Root application class. Extend it to create new game
@@ -17,6 +18,8 @@ import time.TimerManager
 
 abstract class LWSGEApp(val name: String) {
     init()
+
+    var displayParent: Canvas = null
 
     // Private vals
     val title = name
@@ -42,6 +45,8 @@ abstract class LWSGEApp(val name: String) {
     def initDisplay() {
         Display.setDisplayMode(getDisplayMode)
         Display.setTitle(title)
+        if (displayParent != null)
+            Display.setParent(displayParent)
         Display.create()
     }
 
@@ -77,7 +82,7 @@ abstract class LWSGEApp(val name: String) {
         glClear(GL_COLOR_BUFFER_BIT)
     }
 
-    def detectInput() {}
+    def checkInput() {}
     def preRenderCount() {}
     def render() {}
     def renderText() {}
@@ -108,6 +113,8 @@ abstract class LWSGEApp(val name: String) {
         Config(DISPLAY_SYNC_RATE)    = 60
         Config(DRAW_FPS_X)           = 10
         Config(DRAW_FPS_Y)           = 0
+
+        GameController.setApp(this)
     }
 
     /**
@@ -121,7 +128,7 @@ abstract class LWSGEApp(val name: String) {
 
         while (!(done || Display.isCloseRequested)) {
             clear()
-            detectInput()
+            checkInput()
             preRenderCount()
             drawDebug()
             render()
