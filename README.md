@@ -13,6 +13,7 @@ __Left/Right__ - move falling element
 __Up__ - rotate falling element ccw
 __Down__ - speed-up falling element
 __Space__ - drop falling element down
+__F2__ - Show/hide 'phantom' (place, where element will fall)
 __P__ - pause
 __Esc__ - exit
 
@@ -21,6 +22,8 @@ Screenshots
 ----------
 
 ![Scatris screenshot](https://lh6.googleusercontent.com/-yVnkRjsIUNg/T7V89VQXS3I/AAAAAAAADBE/9GB17Bfwn6I/s640/scatris_screen.png "Scatris")
+
+![Scatris screenshot with phantom element](https://lh4.googleusercontent.com/--BeEhg0VZN8/T7gWBkUJpLI/AAAAAAAADCE/3xhr0B5FWqk/s640/scatris_phantom.png "Phantom")
 
 
 Download
