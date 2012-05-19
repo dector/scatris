@@ -27,30 +27,42 @@ object GameCore {
         Config.i(FIELD_Y_BLOCKS_NUM))
 
     private var _tickTimeBound = Config.i(STARTING_TICK_TIME)
-    def tickTimeBound = _tickTimeBound
-    private def tickTimeBound_= (value: Int) {_tickTimeBound = value}
 
     private val elementsPool =
         Array(new Stick, new Block, new RZip, new LZip, new G, new Seven, new T)
-    var nextElement = getNextFallingElement
+
+    private var _nextElement = getNextFallingElement
 
     private var _currElement = getNextFallingElement
+    private var _currElementY = getStartFallingY
+    private var _currElementX = getStartFallingX
+
+    private var _phantomY: Int = currElementY
+
+    private var _score = 0
+    private var _lines = 0
+
+    def tickTimeBound = _tickTimeBound
+    private def tickTimeBound_= (value: Int) {_tickTimeBound = value}
+
     def currElement = _currElement
     private def currElement_= (newElement: Element) {_currElement = newElement}
 
-    private var _currElementX = getStartFallingX
     def currElementX = _currElementX
     private def currElementX_= (newElementX: Int) {_currElementX = newElementX}
 
-    private var _currElementY = getStartFallingY
     def currElementY = _currElementY
     private def currElementY_= (newElementY: Int) {_currElementY = newElementY}
 
-    private var _score = 0
+    def nextElement = _nextElement
+    private def nextElement_= (newElement: Element) {_nextElement = newElement}
+
+    def phantomY = _phantomY
+    private def phantomY_= (value: Int) {_phantomY = value}
+
     def score = _score
     private def score_= (value: Int) {_score = value}
 
-    var _lines = 0
     def lines = _lines
     private def lines_= (value: Int) {_lines = value}
 
@@ -73,6 +85,8 @@ object GameCore {
 
         currElementX = getStartFallingX
         currElementY = getStartFallingY
+
+        tryRecountPhantom()
     }
 
     /* *** Post-fallen processing *** */
@@ -159,16 +173,27 @@ object GameCore {
         }
     }
 
+    /* *** Phantom *** */
+
+    private def tryRecountPhantom() {
+        if (Config.bool(DRAW_PHANTOM)) {
+            phantomY = currElementY
+
+            while (canMoveElementDown(currElement, currElementX, phantomY))
+                phantomY = phantomY - 1
+        }
+    }
+
     /* *** Moving *** */
 
-    private def canMoveCurrElementDown: Boolean = {
+    private def canMoveElementDown(el: Element, elX: Int, elY: Int): Boolean = {
         var canMove = true
         var i = 0
 
-        val bottomBlocksY = currElement.bottomBlocksY
+        val bottomBlocksY = el.bottomBlocksY
 
-        while (canMove && i < currElement.width) {
-            if (field(currElementX + i, currElementY + bottomBlocksY(i) - 1)) canMove = false
+        while (canMove && i < el.width) {
+            if (field(elX + i, elY + bottomBlocksY(i) - 1)) canMove = false
             i += 1
         }
 
@@ -211,6 +236,8 @@ object GameCore {
         if (TimerManager(LEFT_MOVE_TIMER).time >=
                 Config.i(LEFT_MOVE_TIME_BOUND)) {
             GameCore.moveCurrElementLeft()
+            tryRecountPhantom()
+
             TimerManager(LEFT_MOVE_TIMER).restart()
         }
     }
@@ -219,6 +246,8 @@ object GameCore {
         if (TimerManager(RIGHT_MOVE_TIMER).time >=
                 Config.i(RIGHT_MOVE_TIME_BOUND)) {
             GameCore.moveCurrElementRight()
+            tryRecountPhantom()
+
             TimerManager(RIGHT_MOVE_TIMER).restart()
         }
     }
@@ -256,6 +285,8 @@ object GameCore {
         currElement.setPreviousRotation()
         currElementX += currElement.offsetX
         currElementY += currElement.offsetY
+
+        tryRecountPhantom()
     }
 
     private def rotateCurrElementRight() {
@@ -264,16 +295,18 @@ object GameCore {
         currElement.setNextRotation()
         currElementX += currElement.offsetX
         currElementY += currElement.offsetY
+
+        tryRecountPhantom()
     }
 
     /* *** Public interface *** */
 
     def tryMoveCurrElementLeftByTimer() {
-        if (GameCore.canMoveCurrElementLeft) moveCurrElementLeftByTimer
+        if (GameCore.canMoveCurrElementLeft) moveCurrElementLeftByTimer()
     }
 
     def tryMoveCurrElementRightByTimer() {
-        if (GameCore.canMoveCurrElementRight) moveCurrElementRightByTimer
+        if (GameCore.canMoveCurrElementRight) moveCurrElementRightByTimer()
     }
 
     def tryRotateCurrElementRight() {
@@ -289,14 +322,17 @@ object GameCore {
     }
 
     def dropCurrElementDown() {
-        while (canMoveCurrElementDown) moveCurrElementDown()
+        while (canMoveElementDown(currElement, currElementX, currElementY))
+            moveCurrElementDown()
         processFallenElement()
     }
 
     def tick() {
-        if (currElement != null && canMoveCurrElementDown)
+        if (currElement != null
+                && canMoveElementDown(currElement, currElementX, currElementY)) {
             moveCurrElementDown()
-        else
+            tryRecountPhantom()
+        } else
             processFallenElement()
     }
 
@@ -308,5 +344,7 @@ object GameCore {
 
         score = 0
         lines = 0
+
+        tryRecountPhantom()
     }
 }

@@ -17,7 +17,7 @@ package object graphics {
     }
 
     def fillRect(xd: Int, yd: Int, width: Int, height: Int, color: Color) {
-        glColor3f(color.r, color.g, color.b)
+        glColor4f(color.r, color.g, color.b, color.a)
         glBegin(GL_QUADS)
             glVertex2i(xd, yd + height)
             glVertex2i(xd + width, yd + height)
@@ -34,7 +34,7 @@ package object graphics {
     }
 
     def drawRect(xd: Int, yd: Int, width: Int, height: Int, color: Color) {
-        glColor3f(color.r, color.g, color.b)
+        glColor4f(color.r, color.g, color.b, color.a)
         glBegin(GL_LINE_LOOP)
             glVertex2i(xd, yd + height)
             glVertex2i(xd + width, yd + height)

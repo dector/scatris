@@ -29,6 +29,13 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
         Config(FIELD_X_PADDING)         = 5
         Config(FIELD_Y_PADDING)         = 10
 
+        Config(PHANTOM_BLOCK_COLOR)     = {
+            // Clone gray color :)
+            val color = new Color(Color.darkGray)
+            color.a = 0.5f
+            color
+        }
+
         Config(BLOCK_COLOR)             = Color.lightGray
 
         Config(BLOCKS_DIFF_PLACE)       = ((Config.i(BIG_BLOCK_SIZE) -
@@ -79,6 +86,8 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
 
         Config(LEFT_MOVE_TIME_BOUND)    = 80
         Config(RIGHT_MOVE_TIME_BOUND)   = 80
+
+        Config(DRAW_PHANTOM)            = true
 
         StateManager.addState(SplashGameState, RunningGameState)
         StateManager.addState(RunningGameState)

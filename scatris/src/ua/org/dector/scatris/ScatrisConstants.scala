@@ -15,6 +15,7 @@ object ScatrisConstants {
     val FIELD_X_PADDING         = "field.x.padding"
     val FIELD_Y_PADDING         = "field.y.padding"
 
+    val PHANTOM_BLOCK_COLOR     = "phantom.block.color"
     val BLOCK_COLOR             = "block.color"
 
     val BLOCKS_DIFF_PLACE       = "blocks.diff.place"
@@ -61,6 +62,8 @@ object ScatrisConstants {
 
     val LEFT_MOVE_TIME_BOUND    = "left.move.time.bound"
     val RIGHT_MOVE_TIME_BOUND   = "right.move.time.bound"
+
+    val DRAW_PHANTOM            = "draw.phantom"
 
     //val         = ""
 }
