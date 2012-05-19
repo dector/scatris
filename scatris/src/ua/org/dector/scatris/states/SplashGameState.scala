@@ -20,6 +20,7 @@ object SplashGameState extends GameState("Splash") {
 
     private val FADING_TIMER = "Fading Timer"
 
+    def added() {}
     def activate() {}
 
     def preRenderCount() {

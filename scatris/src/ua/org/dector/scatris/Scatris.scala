@@ -2,19 +2,16 @@ package ua.org.dector.scatris
 
 import org.newdawn.slick.opengl.{Texture, TextureLoader}
 import org.newdawn.slick.util.ResourceLoader
-import org.lwjgl.input.Keyboard
 import org.newdawn.slick.Color
 
-import states.{ResetGameState, SplashGameState, RunningGameState}
+import states._
 import util.Random
 import collection.mutable.ArrayBuffer
 
 import ua.org.dector.lwsge._
 import common.Config
 import LWSGEConstants._
-import ScatrisConstants._
 import time.TimerManager
-import graphics._
 import state.StateManager
 import ScatrisConstants._
 
@@ -22,38 +19,29 @@ import ScatrisConstants._
  * @author dector (dector9@gmail.com)
  */
 
-object GameState extends Enumeration {
-    type GameState = Value
-
-    val Splash, Running, Paused, GameOver = Value
-}
-
-import GameState._
-
 object Scatris extends LWSGEApp("Scatris") {
-    init()
-
     val TICK_TIMER = "Tick Timer"
     val LEFT_MOVE_TIMER = "Left Move Timer"
     val RIGHT_MOVE_TIMER = "Right Move Timer"
 
-    private val field = new GameField(Config.i(FIELD_X_BLOCKS_NUM),
+    // Define it after internal constants
+    init()
+
+    val field = new GameField(Config.i(FIELD_X_BLOCKS_NUM),
         Config.i(FIELD_Y_BLOCKS_NUM))
 
     var tickTimeBound = Config.i(STARTING_TICK_TIME)
 
     private val elementsPool =
         Array(new Stick, new Block, new RZip, new LZip, new G, new Seven, new T)
-    private var nextElement = getNextFallingElement
+    var nextElement = getNextFallingElement
 
-    private var currElement = getNextFallingElement
-    private var currElementX = getStartFallingX
-    private var currElementY = getStartFallingY
+    var currElement = getNextFallingElement
+    var currElementX = getStartFallingX
+    var currElementY = getStartFallingY
 
-    private var gameState = Splash
-
-    private var score = 0
-    private var lines = 0
+    var score = 0
+    var lines = 0
 
     private def init() {
         Config(FIELD_X_BLOCKS_NUM)      = 10
@@ -96,7 +84,7 @@ object Scatris extends LWSGEApp("Scatris") {
                 Config.i(NEXT_ELEMENT_SHOW_OFFSET_Y)) / Config.i(BIG_BLOCK_SIZE))
 
         Config(STARTING_TICK_TIME)      = 500
-        Config(FAST_FALLING_TICK_TIME)  = 0.12f * Config.i(STARTING_TICK_TIME)
+        Config(FAST_FALLING_TICK_COEF)  = 0.12f
 
         Config(SCORE_PER_CLEARED_LINE)  = 10
         Config(SCORE_SPEEDUP_COEF)      = 2
@@ -118,36 +106,23 @@ object Scatris extends LWSGEApp("Scatris") {
         StateManager.addState(SplashGameState, RunningGameState)
         StateManager.addState(RunningGameState)
         StateManager.addState(ResetGameState, RunningGameState)
-//        StateManager.addState(PausedGameState)
+        StateManager.addState(PausedGameState)
+        StateManager.addState(GameOverGameState)
+
         StateManager.currentState = SplashGameState
     }
 
-    // Make it DRY - how in scala?
     def reset() {
         field.clear()
         generateNextFallingElement()
 
         tickTimeBound = Config.i(STARTING_TICK_TIME)
-        gameState = Running // Oh really make it dry??? Not Splash now, yep?
 
         score = 0
         lines = 0
     }
 
-    // TODO: Delete
-    def resetGame() {
-        StateManager.currentState = ResetGameState
-    }
-
-    // TODO: Remove
-    def play() {
-        gameState = Running
-
-        reset()
-    }
-
-    private def setGameOverState() { gameState = GameOver }
-
+    // TODO: Move them to Game Mechanic class
     // Game logic procedures
 
     private def getStartFallingX: Int = Config.i(FIELD_X_BLOCKS_NUM) / 2 - 1
@@ -243,7 +218,31 @@ object Scatris extends LWSGEApp("Scatris") {
 
     def dropCurrElementDown() {
         while (canMoveCurrElementDown) moveCurrElementDown()
-        processElementFall()
+        processFallenElement()
+    }
+
+    def fallDownFast() {
+        if (TimerManager(TICK_TIMER).time >=
+                tickTimeBound * Config.f(FAST_FALLING_TICK_COEF)) {
+            Scatris.tick()
+            TimerManager(TICK_TIMER).restart()
+        }
+    }
+
+    def moveCurrElementLeftByTimer() {
+        if (TimerManager(LEFT_MOVE_TIMER).time >=
+                Config.i(LEFT_MOVE_TIME_BOUND)) {
+            Scatris.moveCurrElementLeft()
+            TimerManager(LEFT_MOVE_TIMER).restart()
+        }
+    }
+
+    def moveCurrElementRightByTimer() {
+        if (TimerManager(RIGHT_MOVE_TIMER).time >=
+                Config.i(RIGHT_MOVE_TIME_BOUND)) {
+            Scatris.moveCurrElementRight()
+            TimerManager(RIGHT_MOVE_TIMER).restart()
+        }
     }
 
     private def checkAndDeleteFullLines() {
@@ -328,12 +327,12 @@ object Scatris extends LWSGEApp("Scatris") {
         }
     }
 
-    private def processElementFall() {
+    private def processFallenElement() {
         field.append(currElement, currElementX - currElement.offsetX,
             currElementY - currElement.offsetY)
 
         if (field(getStartFallingX, getStartFallingY)) {
-            setGameOverState()
+            StateManager.currentState = GameOverGameState
         } else {
             generateNextFallingElement()
 
@@ -345,30 +344,7 @@ object Scatris extends LWSGEApp("Scatris") {
         if (currElement != null && canMoveCurrElementDown)
             moveCurrElementDown()
         else
-            processElementFall()
-    }
-
-
-
-    // Draw procedures
-
-    private def drawFieldBorder() {
-        drawRect(Config.i(FIELD_X_START), Config.i(FIELD_Y_START),
-            Config.i(FIELD_WIDTH), Config.i(FIELD_HEIGHT),
-            Config(BLOCK_COLOR).asInstanceOf[Color])
-    }
-
-    private def drawBlock(xNum: Int, yNum: Int) {
-        val x = xNum * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
-                Config.i(FIELD_X_START) + Config.i(FIELD_X_PADDING)
-        val y = yNum * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
-                Config.i(FIELD_Y_START) + Config.i(FIELD_Y_PADDING)
-
-        drawRect(x, y, Config.i(BIG_BLOCK_SIZE), Config.i(BIG_BLOCK_SIZE),
-            Config(BLOCK_COLOR).asInstanceOf[Color])
-        fillRect(x + Config.i(BLOCKS_DIFF_PLACE), y + Config.i(BLOCKS_DIFF_PLACE),
-            Config.i(SMALL_BLOCK_SIZE), Config.i(SMALL_BLOCK_SIZE),
-            Config(BLOCK_COLOR).asInstanceOf[Color])
+            processFallenElement()
     }
 
     override def preRenderCount {
@@ -376,146 +352,11 @@ object Scatris extends LWSGEApp("Scatris") {
     }
 
     override def render {
-        if (gameState == Running || gameState == Paused || gameState == GameOver) {
-            // Draw field
-            drawFieldBorder()
-
-            for (x <- 0 until field.width) {
-                for (y <- 0 until field.height) {
-                    if (field(x, y))
-                        drawBlock(x, y)
-                }
-            }
-
-            // Draw statistics
-            val statX = Config.i(FIELD_X_START) +
-                    Config.i(NEXT_ELEMENT_SHOW_X_IN_BLOCKS) * (Config.i(BIG_BLOCK_SIZE) +
-                    Config.i(BLOCK_MARGING))
-            val statY = Config.i(FIELD_Y_START) + Config.i(NEXT_ELEMENT_SHOW_Y_IN_BLOCKS) *
-                    (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) -
-                    4 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
-
-            val statText2 = "Score: " + score
-            val statText3 = "Lines: " + lines
-            //            val statText1 = "Level: "
-
-            beginTextDrawing()
-                drawText(statX, statY + (1.5f *
-                        GraphicsToolkit.MEDIUM_FONT.getLineHeight).toInt, statText2)
-                drawText(statX, statY, statText3)
-            endTextDrawing()
-
-
-            // Draw falling element
-            if (currElement != null) {
-                var elX, elY = 0
-                for ((x, y) <- currElement.blocks) {
-                    elX = currElementX + x
-                    elY = currElementY + y
-
-                    if (0 <= elX && elX < Config.i(FIELD_X_BLOCKS_NUM)
-                            && 0 <= elY && elY < Config.i(FIELD_Y_BLOCKS_NUM))
-                        drawBlock(elX, elY)
-                }
-            }
-
-            // Draw next element
-            var elX, elY = 0
-            for ((x, y) <- nextElement.blocks) {
-                elX = Config.i(NEXT_ELEMENT_SHOW_X_IN_BLOCKS) + x
-                elY = Config.i(NEXT_ELEMENT_SHOW_Y_IN_BLOCKS) + y
-
-                drawBlock(elX, elY)
-            }
-
-            // Draw score
-//            println("Score: " + score + " Lines: " + lines)
-        }
-
-        if (gameState == GameOver) {
-            // Draw "Game Over!" notification
-            // Mock
-            val text = "Game Over"
-            val textWidth = GraphicsToolkit.BIG_FONT.getWidth(text)
-            val textHeight = GraphicsToolkit.BIG_FONT.getLineHeight
-            val textX = ((Config.i(DISPLAY_WIDTH) - textWidth) / 2).toInt
-            val textY = ((Config.i(DISPLAY_HEIGHT) - textHeight) / 2).toInt
-
-            val rectWidth = textWidth + 20
-            val rectHeight = textHeight + 20
-
-            val rectX = textX - 10
-            val rectY = textY - 10
-            fillRect(rectX, rectY, rectWidth, rectHeight, Color.black)
-            drawRect(rectX, rectY, rectWidth, rectHeight, Color.lightGray)
-
-            beginTextDrawing()
-                drawText(textX, textY, text, font = GraphicsToolkit.BIG_FONT)
-            endTextDrawing()
-        } else if (gameState == Splash) {
-            StateManager.currentState.render()
-            if (StateManager.currentState == RunningGameState)
-                gameState = Running
-        } else if (gameState == Paused) {
-            // Draw "Pause!" notification
-            // Mock
-            val text = "Paused"
-            val text2 = "Press <P> to continue"
-            val textWidth = GraphicsToolkit.MEDIUM_FONT.getWidth(text)
-            val textWidth2 = GraphicsToolkit.MEDIUM_FONT.getWidth(text2)
-            val textHeight = GraphicsToolkit.MEDIUM_FONT.getLineHeight
-            val textX = ((Config.i(DISPLAY_WIDTH) - textWidth) / 2).toInt
-            val textX2 = ((Config.i(DISPLAY_WIDTH) - textWidth2) / 2).toInt
-            val textY2 = ((Config.i(DISPLAY_HEIGHT) - 2.5f*textHeight) / 2).toInt
-
-            val rectWidth = textWidth2 + 20
-            val rectHeight = (2.5f * textHeight + 20).toInt
-
-            val rectX = textX2 - 10
-            val rectY = textY2 - 10
-            fillRect(rectX, rectY, rectWidth, rectHeight, Color.black)
-            drawRect(rectX, rectY, rectWidth, rectHeight, Color.lightGray)
-
-            beginTextDrawing()
-                drawText(textX, (textY2 + 1.5f*textHeight).toInt, text)
-                drawText(textX2, textY2, text2)
-            endTextDrawing()
-        }
+        StateManager.currentState.render()
     }
 
-    // Input procedures
-
     override def checkInput {
-        gameState match {
-            case Running => {
-                StateManager.currentState.checkInput()
-            }
-            case Paused => {
-                while (Keyboard.next && Keyboard.getEventKeyState) {
-                    Keyboard.getEventKey match {
-                        case Keyboard.KEY_ESCAPE =>
-                            exit()
-                        case Keyboard.KEY_P =>
-                            togglePause()
-                        case _ => {}
-                    }
-                }
-            }
-            case GameOver => {
-                while (Keyboard.next && Keyboard.getEventKeyState) {
-                    Keyboard.getEventKey match {
-                        case Keyboard.KEY_R =>
-                            if (Keyboard.getEventKeyState) resetGame()
-                        case Keyboard.KEY_ESCAPE =>
-                            exit()
-                        case _ => {}
-                    }
-                }
-            }
-            case Splash => {
-                StateManager.currentState.checkInput()
-            }
-        }
+        StateManager.currentState.checkInput()
     }
 
     override def loadResources() {
@@ -531,17 +372,5 @@ object Scatris extends LWSGEApp("Scatris") {
                 GraphicsToolkit.MEDIUM_FONT.getWidth(
                     Config.s(PRESS_SPACE_TO_START_MSG))) /2).toInt
         Config(PRESS_SPACE_TO_START_MSG_Y) = 2 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
-    }
-
-    def togglePause() {
-        if (gameState == Running) {
-            gameState = Paused
-
-            TimerManager(TICK_TIMER).pause()
-        } else if (gameState == Paused) {
-            gameState = Running
-
-            TimerManager(TICK_TIMER).start()
-        }
     }
 }

@@ -32,7 +32,7 @@ object ScatrisConstants {
     val NEXT_ELEMENT_SHOW_Y_IN_BLOCKS   = "next.element.show.y.in.blocks"
 
     val STARTING_TICK_TIME      = "starting.tick.time"
-    val FAST_FALLING_TICK_TIME  = "fast.falling.tick.time"
+    val FAST_FALLING_TICK_COEF  = "fast.falling.tick.time"
 
     val SCORE_PER_CLEARED_LINE  = "score.per.cleared.line"
     val SCORE_SPEEDUP_COEF      = "score.speedup.coef"

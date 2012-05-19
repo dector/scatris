@@ -14,8 +14,6 @@ object StateManager {
         if (newState != null) {
             _currentState = newState
 
-            println("New game state: " + currentState)
-
             currentState.activate()
         }
     }
@@ -28,6 +26,11 @@ object StateManager {
 
     def addState(gameState: GameState, nextGameState: GameState) {
         states(gameState.name) = (gameState, nextGameState)
+        gameState.added()
+    }
+
+    def removeState(gameState: GameState) {
+        states remove gameState.name
     }
 
     def nextState() {

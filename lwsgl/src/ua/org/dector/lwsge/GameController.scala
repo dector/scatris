@@ -4,6 +4,7 @@ package ua.org.dector.lwsge
  * @author dector (dector9@gmail.com)
  */
 
+// TODO: Delete it?
 object GameController {
     private var app: LWSGEApp = null
 

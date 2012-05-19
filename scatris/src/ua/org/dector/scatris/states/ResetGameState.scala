@@ -10,6 +10,8 @@ import ua.org.dector.scatris.Scatris
  */
 
 object ResetGameState extends GameState("Reset") {
+    def added() {}
+
     def activate() {
         Scatris.reset()
 
