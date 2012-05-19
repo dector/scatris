@@ -5,6 +5,7 @@ import org.newdawn.slick.util.ResourceLoader
 import org.lwjgl.input.Keyboard
 import org.newdawn.slick.Color
 
+import states.{ResetGameState, SplashGameState, RunningGameState}
 import util.Random
 import collection.mutable.ArrayBuffer
 
@@ -15,6 +16,7 @@ import ScatrisConstants._
 import time.TimerManager
 import graphics._
 import state.StateManager
+import ScatrisConstants._
 
 /**
  * @author dector (dector9@gmail.com)
@@ -31,13 +33,14 @@ import GameState._
 object Scatris extends LWSGEApp("Scatris") {
     init()
 
-    // TODO: Remove
-    private val TICK_TIMER = "Tick Timer"
-    private val LEFT_MOVE_TIMER = "Left Move Timer"
-    private val RIGHT_MOVE_TIMER = "Right Move Timer"
+    val TICK_TIMER = "Tick Timer"
+    val LEFT_MOVE_TIMER = "Left Move Timer"
+    val RIGHT_MOVE_TIMER = "Right Move Timer"
 
     private val field = new GameField(Config.i(FIELD_X_BLOCKS_NUM),
         Config.i(FIELD_Y_BLOCKS_NUM))
+
+    var tickTimeBound = Config.i(STARTING_TICK_TIME)
 
     private val elementsPool =
         Array(new Stick, new Block, new RZip, new LZip, new G, new Seven, new T)
@@ -46,8 +49,6 @@ object Scatris extends LWSGEApp("Scatris") {
     private var currElement = getNextFallingElement
     private var currElementX = getStartFallingX
     private var currElementY = getStartFallingY
-
-    private var tickTimeBound = Config.i(STARTING_TICK_TIME)
 
     private var gameState = Splash
 
@@ -95,7 +96,7 @@ object Scatris extends LWSGEApp("Scatris") {
                 Config.i(NEXT_ELEMENT_SHOW_OFFSET_Y)) / Config.i(BIG_BLOCK_SIZE))
 
         Config(STARTING_TICK_TIME)      = 500
-        Config(FAST_FALLING_TICK_COEF)  = 0.12f
+        Config(FAST_FALLING_TICK_TIME)  = 0.12f * Config.i(STARTING_TICK_TIME)
 
         Config(SCORE_PER_CLEARED_LINE)  = 10
         Config(SCORE_SPEEDUP_COEF)      = 2
@@ -115,17 +116,16 @@ object Scatris extends LWSGEApp("Scatris") {
         Config(RIGHT_MOVE_TIME_BOUND)   = 80
 
         StateManager.addState(SplashGameState, RunningGameState)
+        StateManager.addState(RunningGameState)
+        StateManager.addState(ResetGameState, RunningGameState)
+//        StateManager.addState(PausedGameState)
         StateManager.currentState = SplashGameState
     }
 
     // Make it DRY - how in scala?
-    private def resetGame() {
+    def reset() {
         field.clear()
         generateNextFallingElement()
-
-        TimerManager(TICK_TIMER).restart()
-        TimerManager(LEFT_MOVE_TIMER).restart()
-        TimerManager(RIGHT_MOVE_TIMER).restart()
 
         tickTimeBound = Config.i(STARTING_TICK_TIME)
         gameState = Running // Oh really make it dry??? Not Splash now, yep?
@@ -134,11 +134,16 @@ object Scatris extends LWSGEApp("Scatris") {
         lines = 0
     }
 
+    // TODO: Delete
+    def resetGame() {
+        StateManager.currentState = ResetGameState
+    }
+
     // TODO: Remove
     def play() {
         gameState = Running
 
-        resetGame()
+        reset()
     }
 
     private def setGameOverState() { gameState = GameOver }
@@ -176,7 +181,7 @@ object Scatris extends LWSGEApp("Scatris") {
         canMove
     }
 
-    private def canMoveCurrElementLeft: Boolean = {
+    def canMoveCurrElementLeft: Boolean = {
         var canMove = true
         var i = 0
 
@@ -190,7 +195,7 @@ object Scatris extends LWSGEApp("Scatris") {
         canMove
     }
 
-    private def canMoveCurrElementRight: Boolean = {
+    def canMoveCurrElementRight: Boolean = {
         var canMove = true
         var i = 0
 
@@ -204,7 +209,7 @@ object Scatris extends LWSGEApp("Scatris") {
         canMove
     }
 
-    private def canRotateCurrElementRight: Boolean = {
+    def canRotateCurrElementRight: Boolean = {
         var canRotateRight = true
 
         rotateCurrElementRight()
@@ -216,7 +221,7 @@ object Scatris extends LWSGEApp("Scatris") {
         canRotateRight
     }
 
-    private def rotateCurrElementLeft() {
+    def rotateCurrElementLeft() {
         currElementX -= currElement.offsetX
         currElementY -= currElement.offsetY
         currElement.setPreviousRotation()
@@ -224,7 +229,7 @@ object Scatris extends LWSGEApp("Scatris") {
         currElementY += currElement.offsetY
     }
 
-    private def rotateCurrElementRight() {
+    def rotateCurrElementRight() {
         currElementX -= currElement.offsetX
         currElementY -= currElement.offsetY
         currElement.setNextRotation()
@@ -232,11 +237,11 @@ object Scatris extends LWSGEApp("Scatris") {
         currElementY += currElement.offsetY
     }
 
-    private def moveCurrElementDown() {currElementY -= 1}
-    private def moveCurrElementLeft() {currElementX -= 1}
-    private def moveCurrElementRight() {currElementX += 1}
+    def moveCurrElementDown() {currElementY -= 1}
+    def moveCurrElementLeft() {currElementX -= 1}
+    def moveCurrElementRight() {currElementX += 1}
 
-    private def dropCurrElementDown() {
+    def dropCurrElementDown() {
         while (canMoveCurrElementDown) moveCurrElementDown()
         processElementFall()
     }
@@ -336,36 +341,14 @@ object Scatris extends LWSGEApp("Scatris") {
         }
     }
 
-    private def tick() {
+    def tick() {
         if (currElement != null && canMoveCurrElementDown)
             moveCurrElementDown()
         else
             processElementFall()
     }
 
-    private def fallFast() {
-        if (TimerManager(TICK_TIMER).time >=
-                tickTimeBound * Config.f(FAST_FALLING_TICK_COEF)) {
-            tick()
-            TimerManager(TICK_TIMER).restart()
-        }
-    }
 
-    private def moveCurrElementLeftByTimer() {
-        if (TimerManager(LEFT_MOVE_TIMER).time >=
-                Config.i(LEFT_MOVE_TIME_BOUND)) {
-            moveCurrElementLeft()
-            TimerManager(LEFT_MOVE_TIMER).restart()
-        }
-    }
-
-    private def moveCurrElementRightByTimer() {
-        if (TimerManager(RIGHT_MOVE_TIMER).time >=
-                Config.i(RIGHT_MOVE_TIME_BOUND)) {
-            moveCurrElementRight()
-            TimerManager(RIGHT_MOVE_TIMER).restart()
-        }
-    }
 
     // Draw procedures
 
@@ -389,10 +372,7 @@ object Scatris extends LWSGEApp("Scatris") {
     }
 
     override def preRenderCount {
-        if (gameState == Running && TimerManager(TICK_TIMER).time >= tickTimeBound) {
-            TimerManager(TICK_TIMER).restart()
-            tick()
-        }
+        StateManager.currentState.preRenderCount()
     }
 
     override def render {
@@ -508,34 +488,7 @@ object Scatris extends LWSGEApp("Scatris") {
     override def checkInput {
         gameState match {
             case Running => {
-                if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
-                    fallFast()
-                if (Keyboard.isKeyDown(Keyboard.KEY_LEFT) && canMoveCurrElementLeft)
-                    moveCurrElementLeftByTimer()
-                else if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT) && canMoveCurrElementRight)
-                    moveCurrElementRightByTimer()
-
-                while (Keyboard.next && Keyboard.getEventKeyState) {
-                    Keyboard.getEventKey match {
-                        case Keyboard.KEY_UP =>
-                            if (canRotateCurrElementRight) rotateCurrElementRight()
-//                        case Keyboard.KEY_LEFT =>
-//                            if (Keyboard.getEventKeyState && canMoveCurrElementLeft)
-//                                moveCurrElementLeft()
-//                        case Keyboard.KEY_RIGHT =>
-//                            if (Keyboard.getEventKeyState && canMoveCurrElementRight)
-//                                moveCurrElementRight()
-                        case Keyboard.KEY_SPACE =>
-                            dropCurrElementDown()
-                        case Keyboard.KEY_ESCAPE =>
-                            exit()
-                        case Keyboard.KEY_R =>
-                            if (Keyboard.getEventKeyState) resetGame()
-                        case Keyboard.KEY_P =>
-                            togglePause()
-                        case _ => {}
-                    }
-                }
+                StateManager.currentState.checkInput()
             }
             case Paused => {
                 while (Keyboard.next && Keyboard.getEventKeyState) {
@@ -580,7 +533,7 @@ object Scatris extends LWSGEApp("Scatris") {
         Config(PRESS_SPACE_TO_START_MSG_Y) = 2 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
     }
 
-    private def togglePause() {
+    def togglePause() {
         if (gameState == Running) {
             gameState = Paused
 

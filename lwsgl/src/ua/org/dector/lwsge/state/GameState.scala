@@ -5,6 +5,7 @@ package ua.org.dector.lwsge.state
  */
 
 abstract class GameState(val name: String) {
+    def preRenderCount()
     def activate()
     def render()
     def checkInput()

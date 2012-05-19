@@ -13,6 +13,9 @@ object StateManager {
     def currentState_= (newState: GameState) {
         if (newState != null) {
             _currentState = newState
+
+            println("New game state: " + currentState)
+
             currentState.activate()
         }
     }

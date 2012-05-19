@@ -7,9 +7,9 @@ package ua.org.dector.lwsge
 object GameController {
     private var app: LWSGEApp = null
 
-    def executeCommand(command: GameCommand) { command.action() }
-
     def setApp(controlledApp: LWSGEApp) { app = controlledApp }
+
+    def executeCommand(command: GameCommand) { command.action() }
 
     def exit() { app.exit() }
 }
