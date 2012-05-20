@@ -45,30 +45,14 @@ object LWSGEConsole {
                     flushInput()
                 case Keyboard.KEY_BACK =>
                     removeLast()
-                case Keyboard.KEY_UP => {
-                    if (currCommandIndex == commandsStorage.size) {
-                        tempString = inputString.toString
-                    }
+                case Keyboard.KEY_UP =>
+                    prevInHistory()
+                case Keyboard.KEY_DOWN =>
+                    nextInHistory()
 
-                    if (0 < currCommandIndex ) {
-                        currCommandIndex -= 1
-
-                        if (editStarted) editStarted = false
-                    }
-                }
-                case Keyboard.KEY_DOWN => {
-                    if (currCommandIndex < commandsStorage.size) {
-                        currCommandIndex += 1
-
-                        if (editStarted) editStarted = false
-                    }
-
-                    if (currCommandIndex == commandsStorage.size) {
-                        inputString.clear()
-                        inputString append tempString
-                        tempString = null
-                    }
-                }
+//                Rework automcomplete
+//                case Keyboard.KEY_TAB =>
+//                    tryAutoComplete()
 
                 case _ => {
                     val char = Keyboard.getEventCharacter
@@ -229,5 +213,47 @@ object LWSGEConsole {
             }
         }
 
+    }
+
+    private def prevInHistory() {
+        if (currCommandIndex == commandsStorage.size) {
+            tempString = inputString.toString
+        }
+
+        if (0 < currCommandIndex ) {
+            currCommandIndex -= 1
+
+            if (editStarted) editStarted = false
+        }
+    }
+
+    private def nextInHistory() {
+        if (currCommandIndex < commandsStorage.size) {
+            currCommandIndex += 1
+
+            if (editStarted) editStarted = false
+        }
+
+        if (currCommandIndex == commandsStorage.size) {
+            inputString.clear()
+            inputString append tempString
+            tempString = null
+        }
+    }
+
+    private def tryAutoComplete() {
+        val params = Config.getParamsList(inputtedString)
+
+        if (params.size == 1) {
+            inputString.clear()
+            inputString.append(params.head)
+        } else if (params.size != 0) {
+            val sb = new StringBuilder
+
+            for (param <- params)
+                sb append param append "\n"
+
+            addLine(sb.toString)
+        }
     }
 }

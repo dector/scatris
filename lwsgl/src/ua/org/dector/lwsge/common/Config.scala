@@ -1,6 +1,8 @@
 package ua.org.dector.lwsge.common
 
-import collection.mutable.HashMap
+import collection.mutable.{ArrayBuffer, HashMap}
+import collection.TraversableLike
+
 
 /**
  * @author dector (dector9@gmail.com)
@@ -25,4 +27,7 @@ object Config {
     def update(name: String, value: Any) { params(name) = value }
 
     def contains(name: String) = params.contains(name)
+
+    def getParamsList(starting: String): Iterable[String] =
+        params.keys.filter((name: String) => name.startsWith(starting))
 }
