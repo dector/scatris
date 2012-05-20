@@ -96,19 +96,28 @@ abstract class LWSGEApp(val name: String) {
         }
 
         if (Config.bool(CONSOLE_ENABLED) && Config.bool(CONSOLE_MOVING)) {
-            val animTimer = LWSGEConsole.animationTimer
+            if (Config.bool(CONSOLE_ANIMATION)) {
+                val animTimer = LWSGEConsole.animationTimer
 
-            var timePart = animTimer.time.toFloat / Config.i(CONSOLE_ANIMATION_TIME)
-            if (timePart >= 1) {
-                timePart = 1
+                var timePart = animTimer.time.toFloat / Config.i(CONSOLE_ANIMATION_TIME)
+                if (timePart >= 1) {
+                    timePart = 1
 
+                    Config(CONSOLE_MOVING) = false
+                    Config(CONSOLE_OPENED) = Config.bool(CONSOLE_OPENING)
+                    animTimer.stop()
+                }
+
+                Config(CONSOLE_ANIMATION_PART) =
+                        if (Config.bool(CONSOLE_OPENING)) timePart else 1 - timePart
+            } else {
                 Config(CONSOLE_MOVING) = false
                 Config(CONSOLE_OPENED) = Config.bool(CONSOLE_OPENING)
-                animTimer.stop()
-            }
 
-            Config(CONSOLE_ANIMATION_PART) =
-                    if (Config.bool(CONSOLE_OPENING)) timePart else 1 - timePart
+                Config(CONSOLE_ANIMATION_PART) =
+                        if (Config.bool(CONSOLE_OPENING)) 1f
+                        else 0f
+            }
         }
     }
 
@@ -211,12 +220,12 @@ abstract class LWSGEApp(val name: String) {
     def openConsole() {
         Config(CONSOLE_OPENING) = true
         Config(CONSOLE_MOVING) = true
-        LWSGEConsole.animationTimer.start()
+        if (Config.bool(CONSOLE_ANIMATION)) LWSGEConsole.animationTimer.start()
     }
 
     def closeConsole() {
         Config(CONSOLE_OPENING) = false
         Config(CONSOLE_MOVING) = true
-        LWSGEConsole.animationTimer.start()
+        if (Config.bool(CONSOLE_ANIMATION)) LWSGEConsole.animationTimer.start()
     }
 }
