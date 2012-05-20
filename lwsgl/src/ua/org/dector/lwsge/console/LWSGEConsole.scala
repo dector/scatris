@@ -25,6 +25,8 @@ object LWSGEConsole {
     val animationTimer = TimerManager.createTimer(CONSOLE_ANIMATION_TIMER)
 
     private val linesStorage = new ArrayBuffer[String]
+    private val commandsStorage = new ArrayBuffer[String]
+    private var currCommandIndex = commandsStorage.length
 
     private val inputString = new StringBuilder
 
@@ -38,6 +40,11 @@ object LWSGEConsole {
                     flushInput()
                 case Keyboard.KEY_BACK =>
                     removeLast()
+                case Keyboard.KEY_UP =>
+                    if (0 < currCommandIndex ) currCommandIndex -= 1
+                case Keyboard.KEY_DOWN =>
+                    if (currCommandIndex < commandsStorage.size) currCommandIndex += 1
+
                 case _ => {
                     val char = Keyboard.getEventCharacter
                     addToInput(char)
@@ -81,7 +88,7 @@ object LWSGEConsole {
                 lineNum += 1
             }
 
-            drawText(textX, textY, inputString.toString + Config.s(CONSOLE_INPUT_CURSOR),
+            drawText(textX, textY, inputtedString.toString + Config.s(CONSOLE_INPUT_CURSOR),
                 font = GraphicsToolkit.CONSOLE_FONT)
         endTextDrawing()
     }
@@ -97,20 +104,34 @@ object LWSGEConsole {
     }
 
     def flushInput() {
-        val str = inputString.toString
+        val str = inputtedString
 
-        addLine("> " + str)
-
-        checkCommand(str)
         inputString.clear()
+        appendInput(str)
     }
 
     def println(s: String) {
         addLine(s)
     }
 
+    private def inputtedString: String = {
+        if (currCommandIndex == commandsStorage.size)
+            inputString.toString
+        else
+            commandsStorage(currCommandIndex)
+    }
+
     private def addLine(s: String) {
         linesStorage += s
+    }
+
+    private def appendInput(s: String) {
+        commandsStorage += s
+        currCommandIndex = commandsStorage.length
+
+        addLine("> " + s)
+
+        checkCommand(s)
     }
 
     private def checkCommand(inS: String) {
