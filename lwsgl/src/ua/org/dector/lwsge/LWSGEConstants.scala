@@ -32,9 +32,9 @@ object LWSGEConstants {
     val CONSOLE_DRAW_COLOR      = "console.draw.color"
     val CONSOLE_BACK_COLOR      = "console.back.color"
 
-    val DRAW_FPS        = "draw.fps"
-    val DRAW_FPS_X      = "draw.fps.x"
-    val DRAW_FPS_Y      = "draw.fps.y"
+    val FPS_DRAW        = "fps.draw"
+    val FPS_DRAW_X      = "fps.draw.x"
+    val FPS_DRAW_Y      = "fps.draw.y"
 
     val DISPLAY_WIDTH           = "display.width"
     val DISPLAY_HEIGHT          = "display.height"

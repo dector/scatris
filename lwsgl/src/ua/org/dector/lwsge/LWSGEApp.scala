@@ -89,8 +89,9 @@ abstract class LWSGEApp(val name: String) {
     def renderText() {}
 
     private def systemCount() {
-        if (Config.bool(DRAW_FPS)) {
+        if (Config.bool(FPS_DRAW)) {
             val timePassed = TimerManager(FPS_TIMER_ID).time
+            TimerManager(FPS_TIMER_ID).restart()
             fps = (1000 / timePassed).toInt
         }
 
@@ -115,16 +116,16 @@ abstract class LWSGEApp(val name: String) {
         if (Config.bool(CONSOLE_OPENED) || Config.bool(CONSOLE_MOVING))
             LWSGEConsole.render()
 
-        if (Config.bool(DRAW_FPS)) {
+        if (Config.bool(FPS_DRAW)) {
             beginTextDrawing()
-            drawText(Config.i(DRAW_FPS_X), Config.i(DRAW_FPS_Y),
+            drawText(Config.i(FPS_DRAW_X), Config.i(FPS_DRAW_Y),
                 "FPS: " + fps.toString, Color.white)
             endTextDrawing()
         }
     }
 
     private def systemLoad() {
-        Config(DRAW_FPS_Y) = Config.i(DISPLAY_HEIGHT) -
+        Config(FPS_DRAW_Y) = Config.i(DISPLAY_HEIGHT) -
                 GraphicsToolkit.MEDIUM_FONT.getLineHeight - 10
         TimerManager.createTimer(FPS_TIMER_ID).start()
 
@@ -136,12 +137,12 @@ abstract class LWSGEApp(val name: String) {
 
     private def init() {
         // Load config
-        Config(DRAW_FPS)            = false
+        Config(FPS_DRAW)            = false
         Config(DISPLAY_WIDTH)       = 640
         Config(DISPLAY_HEIGHT)      = 480
         Config(DISPLAY_SYNC_RATE)   = 60
-        Config(DRAW_FPS_X)          = 10
-        Config(DRAW_FPS_Y)          = 0
+        Config(FPS_DRAW_X)          = 10
+        Config(FPS_DRAW_Y)          = 0
 
         Config(CONSOLE_ENABLED)     = true
         Config(CONSOLE_ANIMATION)   = true

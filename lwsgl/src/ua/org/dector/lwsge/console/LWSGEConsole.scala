@@ -1,7 +1,6 @@
 package ua.org.dector.lwsge.console
 
 import ua.org.dector.lwsge.graphics._
-import ua.org.dector.lwsge.common.Config
 import ua.org.dector.lwsge.LWSGEConstants._
 import org.newdawn.slick.Color
 import ua.org.dector.lwsge.time.TimerManager
@@ -9,6 +8,7 @@ import org.lwjgl.input.Keyboard
 import ua.org.dector.lwsge.{GraphicsToolkit, GameController}
 import ua.org.dector.lwsge.state.StateManager
 import collection.mutable.ArrayBuffer
+import ua.org.dector.lwsge.common.{Reflectioner, Config}
 
 /**
  * @author dector (dector9@gmail.com)
@@ -18,6 +18,8 @@ object LWSGEConsole {
     private val COMMAND_EXIT    = "exit"
 //    private val COMMAND_PAUSE   = "pause"
     private val COMMAND_SKIP    = "skip"
+    private val COMMAND_SET     = "set"
+    private val COMMAND_GET     = "get"
 
     private val CONSOLE_ANIMATION_TIMER = "Console Animation Timer"
     val animationTimer = TimerManager.createTimer(CONSOLE_ANIMATION_TIMER)
@@ -103,6 +105,10 @@ object LWSGEConsole {
         inputString.clear()
     }
 
+    def println(s: String) {
+        addLine(s)
+    }
+
     private def addLine(s: String) {
         linesStorage += s
     }
@@ -123,6 +129,31 @@ object LWSGEConsole {
                     // Make it general in game!!
 //                case COMMAND_PAUSE => { StateManager.setState("Paused") }
                 case COMMAND_SKIP => { StateManager.nextState() }
+                case COMMAND_SET => {
+                    try {
+                        val args = s.substring(commandArgsIndex, s.length)
+                        val splitterIndex = args.indexOf("=")
+
+                        val lArg = args.substring(0, splitterIndex).trim()
+                        val rArg = args.substring(splitterIndex + 1, args.length()).trim()
+
+                        Reflectioner.setNewConfigValue(lArg, rArg)
+                    } catch {
+                        case _: IndexOutOfBoundsException => addLine("Wrong command usage")
+                    }
+                }
+                case COMMAND_GET => {
+                    try {
+                        val arg = s.substring(commandArgsIndex, s.length).trim()
+
+                        if (Config.contains(arg))
+                            addLine(Config(arg).toString)
+                        else
+                            addLine(arg + " not found")
+                    } catch {
+                        case _: IndexOutOfBoundsException => addLine("Wrong command usage")
+                    }
+                }
                 case _ => { addLine("Unknown command \"" + s + "\"") }
             }
         }

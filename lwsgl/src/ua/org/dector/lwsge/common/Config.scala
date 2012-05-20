@@ -23,13 +23,6 @@ object Config {
     def f(name: String): Float                  = { this(name).asInstanceOf[Float] }
 
     def update(name: String, value: Any) { params(name) = value }
-//    def update(name: String, value: String)     { params(name) = value }
-//    def update(name: String, value: Boolean)    { this(name) = value.toString }
-//    def update(name: String, value: Byte)       { this(name) = value.toString }
-//    def update(name: String, value: Char)       { this(name) = value.toString }
-//    def update(name: String, value: Short)      { this(name) = value.toString }
-//    def update(name: String, value: Int)        { this(name) = value.toString }
-//    def update(name: String, value: Long)       { this(name) = value.toString }
-//    def update(name: String, value: Float)      { this(name) = value.toString }
-//    def update(name: String, value: Double)     { this(name) = value.toString }
+
+    def contains(name: String) = params.contains(name)
 }
