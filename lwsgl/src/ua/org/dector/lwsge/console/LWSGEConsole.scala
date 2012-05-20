@@ -25,9 +25,9 @@ object LWSGEConsole {
         drawRect(startX, startY, Config.i(CONSOLE_WIDTH) - 1,
             Config.i(CONSOLE_HEIGHT) - 1, drawColor)
 
-        val lineY = startY + Config.i(CONSOLE_INPUT_HEIGHT) +
-                2 * Config.i(CONSOLE_INPUT_UP_DOWN_MARGIN) - 1
-        drawLine(startX, lineY, startX + Config.i(CONSOLE_WIDTH), lineY, drawColor)
+//        val lineY = startY + Config.i(CONSOLE_INPUT_HEIGHT) +
+//                2 * Config.i(CONSOLE_INPUT_UP_DOWN_MARGIN) - 1
+//        drawLine(startX, lineY, startX + Config.i(CONSOLE_WIDTH), lineY, drawColor)
 
 //        // Draw input
 //

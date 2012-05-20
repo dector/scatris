@@ -65,13 +65,15 @@ object SplashGameState extends GameState("Splash") {
 
     def checkInput() {
         while (Keyboard.next) {
-            Keyboard.getEventKey match {
-                case Keyboard.KEY_SPACE => StateManager.nextState()
-                case Keyboard.KEY_ESCAPE => GameController.exit()
-                case Keyboard.KEY_GRAVE =>
-                    if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-                        GameController.trySwitchConsole()
-                case _ => {}
+            if (Keyboard.getEventKeyState) {
+                Keyboard.getEventKey match {
+                    case Keyboard.KEY_SPACE => StateManager.nextState()
+                    case Keyboard.KEY_ESCAPE => GameController.exit()
+                    case Keyboard.KEY_GRAVE =>
+                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+                            GameController.trySwitchConsole()
+                    case _ => {}
+                }
             }
         }
     }

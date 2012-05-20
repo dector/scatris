@@ -135,7 +135,7 @@ abstract class LWSGEApp(val name: String) {
                 2 * Config.i(CONSOLE_INPUT_SIDE_MARGIN)
         Config(CONSOLE_INPUT_HEIGHT)            = 25
 
-        Config(CONSOLE_DRAW_COLOR)  = Color.lightGray
+        Config(CONSOLE_DRAW_COLOR)  = Color.white
         Config(CONSOLE_BACK_COLOR)  = {
             val color = new Color(Color.black)
             color.a = 0.7f
