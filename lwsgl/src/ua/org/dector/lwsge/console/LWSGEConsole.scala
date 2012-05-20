@@ -31,6 +31,8 @@ object LWSGEConsole {
     private val commandsStorage = new ArrayBuffer[String]
     private var currCommandIndex = commandsStorage.length
 
+    private var editStarted = false
+    private var tempString: String = null
     private val inputString = new StringBuilder
 
     def checkInput() {
@@ -43,10 +45,30 @@ object LWSGEConsole {
                     flushInput()
                 case Keyboard.KEY_BACK =>
                     removeLast()
-                case Keyboard.KEY_UP =>
-                    if (0 < currCommandIndex ) currCommandIndex -= 1
-                case Keyboard.KEY_DOWN =>
-                    if (currCommandIndex < commandsStorage.size) currCommandIndex += 1
+                case Keyboard.KEY_UP => {
+                    if (currCommandIndex == commandsStorage.size) {
+                        tempString = inputString.toString
+                    }
+
+                    if (0 < currCommandIndex ) {
+                        currCommandIndex -= 1
+
+                        if (editStarted) editStarted = false
+                    }
+                }
+                case Keyboard.KEY_DOWN => {
+                    if (currCommandIndex < commandsStorage.size) {
+                        currCommandIndex += 1
+
+                        if (editStarted) editStarted = false
+                    }
+
+                    if (currCommandIndex == commandsStorage.size) {
+                        inputString.clear()
+                        inputString append tempString
+                        tempString = null
+                    }
+                }
 
                 case _ => {
                     val char = Keyboard.getEventCharacter
@@ -100,7 +122,17 @@ object LWSGEConsole {
         inputString append c
     }
 
+    private def startEdit() {
+        editStarted = true
+
+        inputString.clear()
+        inputString.append(commandsStorage(currCommandIndex))
+    }
+
     def removeLast() {
+        if (currCommandIndex != commandsStorage.size && ! editStarted)
+            startEdit()
+
         if (inputString.length > 0) {
             inputString.deleteCharAt(inputString.length - 1)
         }
@@ -118,7 +150,7 @@ object LWSGEConsole {
     }
 
     private def inputtedString: String = {
-        if (currCommandIndex == commandsStorage.size)
+        if (currCommandIndex == commandsStorage.size || editStarted)
             inputString.toString
         else
             commandsStorage(currCommandIndex)
