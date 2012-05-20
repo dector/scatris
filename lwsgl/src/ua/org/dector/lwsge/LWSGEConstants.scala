@@ -6,7 +6,13 @@ package ua.org.dector.lwsge
 
 object LWSGEConstants {
     val CONSOLE_ENABLED         = "console.enabled"
+    val CONSOLE_ANIMATION       = "console.animation"
+    val CONSOLE_ANIMATION_TIME  = "console.animation.time"
+    val CONSOLE_ANIMATION_PART  = "console.animation.part"
+
     val CONSOLE_OPENED          = "console.opened"
+    val CONSOLE_OPENING         = "console.opening"
+    val CONSOLE_MOVING          = "console.moving"
     val CONSOLE_WIDTH           = "console.width"
     val CONSOLE_HEIGHT          = "console.height"
     val CONSOLE_INPUT_SIDE_MARGIN       = "console.input.side.margin"

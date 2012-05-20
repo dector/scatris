@@ -17,7 +17,7 @@ object GameController {
 
     def trySwitchConsole() {
         if (Config.bool(CONSOLE_ENABLED)) {
-            if (app.consoleOpened)
+            if (Config.bool(CONSOLE_OPENED))
                 app.closeConsole()
             else
                 app.openConsole()

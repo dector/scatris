@@ -21,6 +21,8 @@ class Timer(initValue: Long = 0L, startNow: Boolean = false) {
 
     def start() {
         if (! started || paused) {
+            if (! paused) value = 0
+
             started = true
             paused = false
             lastDiffTime = TimerManager.getCurrentTime

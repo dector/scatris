@@ -37,11 +37,6 @@ abstract class LWSGEApp(val name: String) {
 
     private val FPS_TIMER_ID = "FPS Timer"
 
-    private var _consoleOpened = false
-
-    def consoleOpened = _consoleOpened
-    private def consoleOpened_= (value: Boolean) { _consoleOpened = value }
-
     // Methods
 
     def getDisplayMode: DisplayMode = {
@@ -94,19 +89,39 @@ abstract class LWSGEApp(val name: String) {
     def render() {}
     def renderText() {}
 
-    private def systemDraw() {
+    private def systemCount() {
         if (Config.bool(DRAW_FPS)) {
             val timePassed = TimerManager(FPS_TIMER_ID).time
             fps = (1000 / timePassed).toInt
-
-            beginTextDrawing()
-                drawText(Config.i(DRAW_FPS_X), Config.i(DRAW_FPS_Y),
-                    "FPS: " + fps.toString, Color.white)
-            endTextDrawing()
         }
 
-        if (Config.bool(CONSOLE_OPENED))
+        if (Config.bool(CONSOLE_ENABLED) && Config.bool(CONSOLE_MOVING)) {
+            val animTimer = LWSGEConsole.animationTimer
+
+            var timePart = animTimer.time.toFloat / Config.i(CONSOLE_ANIMATION_TIME)
+            if (timePart >= 1) {
+                timePart = 1
+
+                Config(CONSOLE_MOVING) = false
+                Config(CONSOLE_OPENED) = Config.bool(CONSOLE_OPENING)
+                animTimer.stop()
+            }
+
+            Config(CONSOLE_ANIMATION_PART) =
+                    if (Config.bool(CONSOLE_OPENING)) timePart else 1 - timePart
+        }
+    }
+
+    private def systemDraw() {
+        if (Config.bool(CONSOLE_OPENED) || Config.bool(CONSOLE_MOVING))
             LWSGEConsole.render()
+
+        if (Config.bool(DRAW_FPS)) {
+            beginTextDrawing()
+            drawText(Config.i(DRAW_FPS_X), Config.i(DRAW_FPS_Y),
+                "FPS: " + fps.toString, Color.white)
+            endTextDrawing()
+        }
     }
 
     private def systemLoad() {
@@ -125,7 +140,13 @@ abstract class LWSGEApp(val name: String) {
         Config(DRAW_FPS_Y)          = 0
 
         Config(CONSOLE_ENABLED)     = true
+        Config(CONSOLE_ANIMATION)   = true
+        Config(CONSOLE_ANIMATION_TIME)  = 300
+        Config(CONSOLE_ANIMATION_PART)  = 1f
+
         Config(CONSOLE_OPENED)      = false
+        Config(CONSOLE_OPENING)     = false
+        Config(CONSOLE_MOVING)      = false
         Config(CONSOLE_WIDTH)       = Config.i(DISPLAY_WIDTH)
         Config(CONSOLE_HEIGHT)      = (Config.i(DISPLAY_HEIGHT) / 2).toInt
 
@@ -158,6 +179,7 @@ abstract class LWSGEApp(val name: String) {
             clear()
             checkInput()
             preRenderCount()
+            systemCount()
             render()
             systemDraw()
             updateDisplay()
@@ -175,13 +197,14 @@ abstract class LWSGEApp(val name: String) {
     }
 
     def openConsole() {
-        // Which var needed?
-        Config(CONSOLE_OPENED) = true
-        consoleOpened = true
+        Config(CONSOLE_OPENING) = true
+        Config(CONSOLE_MOVING) = true
+        LWSGEConsole.animationTimer.start()
     }
 
     def closeConsole() {
-        Config(CONSOLE_OPENED) = false
-        consoleOpened = false
+        Config(CONSOLE_OPENING) = false
+        Config(CONSOLE_MOVING) = true
+        LWSGEConsole.animationTimer.start()
     }
 }
