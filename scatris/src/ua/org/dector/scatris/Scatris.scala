@@ -90,10 +90,10 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
         Config(DRAW_PHANTOM)            = false
 
         StateManager.addState(SplashGameState, RunningGameState)
-        StateManager.addState(RunningGameState)
+        StateManager.addState(RunningGameState, PausedGameState)
         StateManager.addState(ResetGameState, RunningGameState)
-        StateManager.addState(PausedGameState)
-        StateManager.addState(GameOverGameState)
+        StateManager.addState(PausedGameState, RunningGameState)
+        StateManager.addState(GameOverGameState, ResetGameState)
 
         StateManager.currentState = SplashGameState
     }

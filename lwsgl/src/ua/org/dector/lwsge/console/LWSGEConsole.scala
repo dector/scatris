@@ -8,6 +8,7 @@ import ua.org.dector.lwsge.time.TimerManager
 import org.lwjgl.input.Keyboard
 import ua.org.dector.lwsge.{GraphicsToolkit, GameController}
 import ua.org.dector.lwsge.state.StateManager
+import collection.mutable.ArrayBuffer
 
 /**
  * @author dector (dector9@gmail.com)
@@ -15,15 +16,15 @@ import ua.org.dector.lwsge.state.StateManager
 
 object LWSGEConsole {
     private val COMMAND_EXIT    = "exit"
-    private val COMMAND_PAUSE   = "pause"
+//    private val COMMAND_PAUSE   = "pause"
+    private val COMMAND_SKIP    = "skip"
 
     private val CONSOLE_ANIMATION_TIMER = "Console Animation Timer"
     val animationTimer = TimerManager.createTimer(CONSOLE_ANIMATION_TIMER)
 
-    private val inputString = new StringBuilder
+    private val linesStorage = new ArrayBuffer[String]
 
-    // TEMP
-    private val data = new StringBuilder
+    private val inputString = new StringBuilder
 
     def checkInput() {
         while (Keyboard.next && Keyboard.getEventKeyState) {
@@ -67,10 +68,16 @@ object LWSGEConsole {
         // Draw input
 
         var lineNum = 1
+        val linesCount = linesStorage.size
         beginTextDrawing()
-            // Draw all lines!
-            drawText(textX, textY + lineNum * (lineHeight + linePadding), data.toString,
-                font = GraphicsToolkit.CONSOLE_FONT)
+            // Draw all lines
+            while (lineNum <= Config.i(CONSOLE_LINES_NUM) &&
+                    lineNum <= linesCount) {
+                drawText(textX, textY + lineNum * (lineHeight + linePadding),
+                    linesStorage(linesCount - lineNum),
+                    font = GraphicsToolkit.CONSOLE_FONT)
+                lineNum += 1
+            }
 
             drawText(textX, textY, inputString.toString + Config.s(CONSOLE_INPUT_CURSOR),
                 font = GraphicsToolkit.CONSOLE_FONT)
@@ -90,16 +97,14 @@ object LWSGEConsole {
     def flushInput() {
         val str = inputString.toString
 
-        addString(str)
+        addLine("> " + str)
 
         checkCommand(str)
         inputString.clear()
     }
 
-    private def addString(s: String) {
-        // TEMP
-        data.clear()
-        data append "User> " append s
+    private def addLine(s: String) {
+        linesStorage += s
     }
 
     private def checkCommand(inS: String) {
@@ -114,10 +119,11 @@ object LWSGEConsole {
                     s.length()
 
             s.substring(1, commandArgsIndex) match {
-                case COMMAND_EXIT => { addString("Exiting ..."); GameController.exit() }
+                case COMMAND_EXIT => { addLine("Exiting ..."); GameController.exit() }
                     // Make it general in game!!
-                case COMMAND_PAUSE => { StateManager.setState("Paused") }
-                case _ => { addString("Unknown command \"" + s + "\"") }
+//                case COMMAND_PAUSE => { StateManager.setState("Paused") }
+                case COMMAND_SKIP => { StateManager.nextState() }
+                case _ => { addLine("Unknown command \"" + s + "\"") }
             }
         }
 
