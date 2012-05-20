@@ -35,6 +35,8 @@ object LWSGEConsole {
     private var tempString: String = null
     private val inputString = new StringBuilder
 
+    private var firstLineOffset = 0
+
     def checkInput() {
         while (Keyboard.next && Keyboard.getEventKeyState) {
             Keyboard.getEventKey match {
@@ -49,6 +51,10 @@ object LWSGEConsole {
                     prevInHistory()
                 case Keyboard.KEY_DOWN =>
                     nextInHistory()
+                case Keyboard.KEY_PRIOR =>
+                    prevPage()
+                case Keyboard.KEY_NEXT =>
+                    nextPage()
 
 //                Rework automcomplete
 //                case Keyboard.KEY_TAB =>
@@ -90,9 +96,9 @@ object LWSGEConsole {
         beginTextDrawing()
             // Draw all lines
             while (lineNum <= Config.i(CONSOLE_LINES_NUM) &&
-                    lineNum <= linesCount) {
+                    (firstLineOffset + lineNum) <= linesCount) {
                 drawText(textX, textY + lineNum * (lineHeight + linePadding),
-                    linesStorage(linesCount - lineNum),
+                    linesStorage(linesCount - (firstLineOffset + lineNum)),
                     font = GraphicsToolkit.CONSOLE_FONT)
                 lineNum += 1
             }
@@ -216,11 +222,12 @@ object LWSGEConsole {
     }
 
     private def prevInHistory() {
-        if (currCommandIndex == commandsStorage.size) {
+        if (currCommandIndex == commandsStorage.size
+                && commandsStorage.size > 1) {
             tempString = inputString.toString
         }
 
-        if (0 < currCommandIndex ) {
+        if (0 < currCommandIndex) {
             currCommandIndex -= 1
 
             if (editStarted) editStarted = false
@@ -232,12 +239,15 @@ object LWSGEConsole {
             currCommandIndex += 1
 
             if (editStarted) editStarted = false
-        }
 
-        if (currCommandIndex == commandsStorage.size) {
-            inputString.clear()
-            inputString append tempString
-            tempString = null
+            if (currCommandIndex == commandsStorage.size
+                    && editStarted) {
+                inputString.clear()
+                inputString append tempString
+
+                tempString = null
+                editStarted = false
+            }
         }
     }
 
@@ -255,5 +265,21 @@ object LWSGEConsole {
 
             addLine(sb.toString)
         }
+    }
+
+    private def prevPage() {
+        val hasLines = linesStorage.size
+        val needLines = Config.i(CONSOLE_LINES_NUM)
+
+        if (needLines <= hasLines) firstLineOffset =
+                math.min(firstLineOffset + needLines, hasLines - needLines)
+    }
+
+    private def nextPage() {
+        val hasLines = linesStorage.size
+        val needLines = Config.i(CONSOLE_LINES_NUM)
+
+        if (needLines <= hasLines) firstLineOffset =
+                math.max(firstLineOffset - needLines, 0)
     }
 }

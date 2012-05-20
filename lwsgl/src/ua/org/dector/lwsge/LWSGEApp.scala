@@ -169,7 +169,7 @@ abstract class LWSGEApp(val name: String) {
         Config(CONSOLE_PADDING_TOP)         = 10
         Config(CONSOLE_PADDING_BOTTOM)      = 10
 
-        Config(CONSOLE_LINES_PADDING)       = 5
+        Config(CONSOLE_LINES_PADDING)       = 3
 
         Config(CONSOLE_INPUT_WIDTH)         = Config.i(CONSOLE_WIDTH) -
                 2 * Config.i(CONSOLE_PADDING_LEFT)
