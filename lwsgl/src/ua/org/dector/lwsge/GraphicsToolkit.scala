@@ -10,7 +10,7 @@ import org.newdawn.slick.{RemixedAngelCodeFont, Color, AngelCodeFont}
 object GraphicsToolkit {
     val FONTS_DIR = "res/fonts/"
 
-    val CONSOLE_FONT_NAME = "Sans-Light14"
+    val CONSOLE_FONT_NAME = "Sans-Mono14"
     val SMALL_FONT_NAME = "Sans-Light14"
     val MEDIUM_FONT_NAME = "Sans-Light24"
     val BIG_FONT_NAME = "Sans-Light48"
