@@ -27,7 +27,12 @@ object SplashGameState extends GameState("Splash") {
 
     def added() {}
 
-    def activate() {}
+    def activate() {
+        splashFadingStarted = false
+        splashFadingFinished = false
+
+        alpha = 0f
+    }
 
     def preRenderCount() {
         if (! splashFadingStarted) {

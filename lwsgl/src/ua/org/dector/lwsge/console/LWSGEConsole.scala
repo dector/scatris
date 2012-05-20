@@ -18,6 +18,7 @@ object LWSGEConsole {
     private val COMMAND_EXIT    = "exit"
 //    private val COMMAND_PAUSE   = "pause"
     private val COMMAND_SKIP    = "skip"
+    private val COMMAND_RESTART = "restart"
     private val COMMAND_SET     = "set"
     private val COMMAND_GET     = "get"
 
@@ -150,6 +151,7 @@ object LWSGEConsole {
                     // Make it general in game!!
 //                case COMMAND_PAUSE => { StateManager.setState("Paused") }
                 case COMMAND_SKIP => { StateManager.nextState() }
+                case COMMAND_RESTART => { StateManager.currentState.activate() }
                 case COMMAND_SET => {
                     try {
                         val args = s.substring(commandArgsIndex, s.length)
