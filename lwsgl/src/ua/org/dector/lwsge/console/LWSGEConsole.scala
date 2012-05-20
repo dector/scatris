@@ -19,6 +19,8 @@ object LWSGEConsole {
 //    private val COMMAND_PAUSE   = "pause"
     private val COMMAND_SKIP    = "skip"
     private val COMMAND_RESTART = "restart"
+    private val COMMAND_STATES  = "states"
+    private val COMMAND_STATE   = "state"
     private val COMMAND_SET     = "set"
     private val COMMAND_GET     = "get"
 
@@ -123,7 +125,8 @@ object LWSGEConsole {
     }
 
     private def addLine(s: String) {
-        linesStorage += s
+        for (line <- s.split("\n"))
+            linesStorage.append(line)
     }
 
     private def appendInput(s: String) {
@@ -152,6 +155,19 @@ object LWSGEConsole {
 //                case COMMAND_PAUSE => { StateManager.setState("Paused") }
                 case COMMAND_SKIP => { StateManager.nextState() }
                 case COMMAND_RESTART => { StateManager.currentState.activate() }
+                case COMMAND_STATES => { addLine(StateManager.toString) }
+                case COMMAND_STATE => {
+                    try {
+                        val stateName = s.substring(commandArgsIndex + 1, s.length).trim()
+
+                        if (StateManager.contains(stateName))
+                            StateManager.setState(stateName)
+                        else
+                            addLine("State \"" + stateName + "\" not found")
+                    } catch {
+                        case _: IndexOutOfBoundsException => addLine("Wrong command usage")
+                    }
+                }
                 case COMMAND_SET => {
                     try {
                         val args = s.substring(commandArgsIndex, s.length)

@@ -45,4 +45,22 @@ object StateManager {
         if (nextState != null)
             currentState = nextState
     }
+
+    def contains(name: String): Boolean = {
+        states.contains(name)
+    }
+
+    override def toString = {
+        val sb = new StringBuilder
+        var currentFound = false
+
+        for (val state <- states.keys) {
+            sb.append(state)
+            if (! currentFound && currentState.name == state)
+                sb.append("*")
+            sb.append("\n")
+        }
+
+        sb.toString
+    }
 }

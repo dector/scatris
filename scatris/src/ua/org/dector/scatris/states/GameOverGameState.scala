@@ -14,7 +14,7 @@ import ua.org.dector.lwsge.console.LWSGEConsole
  * @author dector (dector9@gmail.com)
  */
 
-object GameOverGameState extends GameState("Game Over") {
+object GameOverGameState extends GameState("GameOver") {
     def added() {}
     def activate() {}
     def preRenderCount() {}
