@@ -16,6 +16,7 @@ import ua.org.dector.lwsge.common.{Reflectioner, Config}
 
 object LWSGEConsole {
     private val COMMAND_EXIT    = "exit"
+    private val COMMAND_CLEAR   = "clear"
 //    private val COMMAND_PAUSE   = "pause"
     private val COMMAND_SKIP    = "skip"
     private val COMMAND_RESTART = "restart"
@@ -56,9 +57,9 @@ object LWSGEConsole {
                 case Keyboard.KEY_NEXT =>
                     nextPage()
 
-//                Rework automcomplete
-//                case Keyboard.KEY_TAB =>
-//                    tryAutoComplete()
+                // Improve automcomplete
+                case Keyboard.KEY_TAB =>
+                    tryAutoComplete()
 
                 case _ => {
                     val char = Keyboard.getEventCharacter
@@ -129,6 +130,8 @@ object LWSGEConsole {
     }
 
     def flushInput() {
+        if (Config.bool(CONSOLE_RETURN_END)) firstLineOffset = 0
+
         val str = inputtedString
 
         inputString.clear()
@@ -173,6 +176,7 @@ object LWSGEConsole {
 
             s.substring(1, commandArgsIndex) match {
                 case COMMAND_EXIT => { addLine("Exiting ..."); GameController.exit() }
+                case COMMAND_CLEAR => { clearStoredLines() }
                     // Make it general in game!!
 //                case COMMAND_PAUSE => { StateManager.setState("Paused") }
                 case COMMAND_SKIP => { StateManager.nextState() }
@@ -265,6 +269,8 @@ object LWSGEConsole {
 
             addLine(sb.toString)
         }
+
+        addLine(" \n")
     }
 
     private def prevPage() {
@@ -281,5 +287,11 @@ object LWSGEConsole {
 
         if (needLines <= hasLines) firstLineOffset =
                 math.max(firstLineOffset - needLines, 0)
+    }
+
+    private def clearStoredLines() {
+        linesStorage.clear()
+
+        firstLineOffset = 0
     }
 }

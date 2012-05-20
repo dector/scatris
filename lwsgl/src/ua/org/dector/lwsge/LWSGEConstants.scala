@@ -32,6 +32,8 @@ object LWSGEConstants {
     val CONSOLE_DRAW_COLOR      = "console.draw.color"
     val CONSOLE_BACK_COLOR      = "console.back.color"
 
+    val CONSOLE_RETURN_END      = "console.return.end"
+
     val FPS_DRAW        = "fps.draw"
     val FPS_DRAW_X      = "fps.draw.x"
     val FPS_DRAW_Y      = "fps.draw.y"

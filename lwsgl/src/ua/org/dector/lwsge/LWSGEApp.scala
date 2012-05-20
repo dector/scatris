@@ -176,6 +176,7 @@ abstract class LWSGEApp(val name: String) {
         Config(CONSOLE_INPUT_HEIGHT)        = 25
 
         Config(CONSOLE_INPUT_CURSOR)        = "|"
+        Config(CONSOLE_RETURN_END)          = true
 
         Config(CONSOLE_DRAW_COLOR)  = Color.white
         Config(CONSOLE_BACK_COLOR)  = {

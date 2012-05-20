@@ -29,5 +29,6 @@ object Config {
     def contains(name: String) = params.contains(name)
 
     def getParamsList(starting: String): Iterable[String] =
-        params.keys.filter((name: String) => name.startsWith(starting))
+        params.keys.filter((name: String) => name.startsWith(starting)).
+                toArray.sortWith(_ < _)
 }
