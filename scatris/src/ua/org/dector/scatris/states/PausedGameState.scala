@@ -62,6 +62,9 @@ object PausedGameState extends GameState("Paused") {
                     GameController.exit()
                 case Keyboard.KEY_P =>
                     StateManager.currentState = RunningGameState
+                case Keyboard.KEY_GRAVE =>
+                    if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+                        GameController.trySwitchConsole()
                 case _ => {}
             }
         }

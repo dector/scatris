@@ -43,6 +43,14 @@ package object graphics {
         glEnd()
     }
 
+    def drawLine(x0: Int, y0: Int, x1: Int, y1: Int, color: Color) {
+        glColor4f(color.r, color.g, color.b, color.a)
+        glBegin(GL_LINE)
+            glVertex2i(x0, y0)
+            glVertex2i(x1, y1)
+        glEnd()
+    }
+
     def beginTextDrawing() { glEnable(GL_TEXTURE_2D) }
     def endTextDrawing() { glDisable(GL_TEXTURE_2D) }
 

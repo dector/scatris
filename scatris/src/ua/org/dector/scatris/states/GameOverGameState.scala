@@ -50,6 +50,9 @@ object GameOverGameState extends GameState("Game Over") {
                         StateManager.currentState = ResetGameState
                 case Keyboard.KEY_ESCAPE =>
                     GameController.exit()
+                case Keyboard.KEY_GRAVE =>
+                    if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+                        GameController.trySwitchConsole()
                 case _ => {}
             }
         }

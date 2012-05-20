@@ -1,5 +1,6 @@
 package ua.org.dector.lwsge
 
+import console.LWSGEConsole
 import org.lwjgl.opengl.GL11._
 import org.lwjgl.opengl.{Display, DisplayMode}
 import org.newdawn.slick.Color
@@ -9,6 +10,7 @@ import graphics._
 import common.Config
 import time.TimerManager
 import java.awt.Canvas
+import org.lwjgl.input.Keyboard
 
 /**
  * Root application class. Extend it to create new game
@@ -25,7 +27,7 @@ abstract class LWSGEApp(val name: String) {
     val title = name
     val clearColor = Color.black
 
-    // Repeat main loop
+    // Repeat main loop while !done
     private var done = false
 
     // FPS
@@ -34,6 +36,11 @@ abstract class LWSGEApp(val name: String) {
     private def fps_= (fpsValue: Int) {_fps = fpsValue}
 
     private val FPS_TIMER_ID = "FPS Timer"
+
+    private var _consoleOpened = false
+
+    def consoleOpened = _consoleOpened
+    private def consoleOpened_= (value: Boolean) { _consoleOpened = value }
 
     // Methods
 
@@ -87,7 +94,7 @@ abstract class LWSGEApp(val name: String) {
     def render() {}
     def renderText() {}
 
-    def drawDebug() {
+    private def systemDraw() {
         if (Config.bool(DRAW_FPS)) {
             val timePassed = TimerManager(FPS_TIMER_ID).time
             fps = (1000 / timePassed).toInt
@@ -97,6 +104,9 @@ abstract class LWSGEApp(val name: String) {
                     "FPS: " + fps.toString, Color.white)
             endTextDrawing()
         }
+
+        if (Config.bool(CONSOLE_OPENED))
+            LWSGEConsole.render()
     }
 
     private def systemLoad() {
@@ -107,12 +117,30 @@ abstract class LWSGEApp(val name: String) {
 
     private def init() {
         // Load config
-        Config(DRAW_FPS)             = false
-        Config(DISPLAY_WIDTH)        = 640
-        Config(DISPLAY_HEIGHT)       = 480
-        Config(DISPLAY_SYNC_RATE)    = 60
-        Config(DRAW_FPS_X)           = 10
-        Config(DRAW_FPS_Y)           = 0
+        Config(DRAW_FPS)            = false
+        Config(DISPLAY_WIDTH)       = 640
+        Config(DISPLAY_HEIGHT)      = 480
+        Config(DISPLAY_SYNC_RATE)   = 60
+        Config(DRAW_FPS_X)          = 10
+        Config(DRAW_FPS_Y)          = 0
+
+        Config(CONSOLE_ENABLED)     = true
+        Config(CONSOLE_OPENED)      = false
+        Config(CONSOLE_WIDTH)       = Config.i(DISPLAY_WIDTH)
+        Config(CONSOLE_HEIGHT)      = (Config.i(DISPLAY_HEIGHT) / 2).toInt
+
+        Config(CONSOLE_INPUT_SIDE_MARGIN)       = 10
+        Config(CONSOLE_INPUT_UP_DOWN_MARGIN)    = 10
+        Config(CONSOLE_INPUT_WIDTH)             = Config.i(CONSOLE_WIDTH) -
+                2 * Config.i(CONSOLE_INPUT_SIDE_MARGIN)
+        Config(CONSOLE_INPUT_HEIGHT)            = 25
+
+        Config(CONSOLE_DRAW_COLOR)  = Color.lightGray
+        Config(CONSOLE_BACK_COLOR)  = {
+            val color = new Color(Color.black)
+            color.a = 0.7f
+            color
+        }
 
         GameController.setApp(this)
     }
@@ -130,8 +158,8 @@ abstract class LWSGEApp(val name: String) {
             clear()
             checkInput()
             preRenderCount()
-            drawDebug()
             render()
+            systemDraw()
             updateDisplay()
         }
 
@@ -144,5 +172,16 @@ abstract class LWSGEApp(val name: String) {
 
     def exit() {
         done = true
+    }
+
+    def openConsole() {
+        // Which var needed?
+        Config(CONSOLE_OPENED) = true
+        consoleOpened = true
+    }
+
+    def closeConsole() {
+        Config(CONSOLE_OPENED) = false
+        consoleOpened = false
     }
 }

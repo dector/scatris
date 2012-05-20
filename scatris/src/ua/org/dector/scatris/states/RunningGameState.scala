@@ -3,6 +3,7 @@ package ua.org.dector.scatris.states
 import ua.org.dector.lwsge.time.TimerManager
 import org.lwjgl.input.Keyboard
 import ua.org.dector.lwsge.GameController
+import ua.org.dector.lwsge.LWSGEConstants._
 import ua.org.dector.lwsge.state.{StateManager, GameState}
 import ua.org.dector.scatris.{Drawer, GameCore}
 import ua.org.dector.lwsge.common.Config
@@ -61,6 +62,9 @@ object RunningGameState extends GameState("Running") {
                     StateManager.currentState = PausedGameState
                 case Keyboard.KEY_F2 =>
                     Config(DRAW_PHANTOM) = !Config.bool(DRAW_PHANTOM)
+                case Keyboard.KEY_GRAVE =>
+                    if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+                        GameController.trySwitchConsole()
                 case _ => {}
             }
         }

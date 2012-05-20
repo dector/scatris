@@ -87,7 +87,7 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
         Config(LEFT_MOVE_TIME_BOUND)    = 80
         Config(RIGHT_MOVE_TIME_BOUND)   = 80
 
-        Config(DRAW_PHANTOM)            = true
+        Config(DRAW_PHANTOM)            = false
 
         StateManager.addState(SplashGameState, RunningGameState)
         StateManager.addState(RunningGameState)
