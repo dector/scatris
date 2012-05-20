@@ -18,6 +18,7 @@ object StateManager {
         }
     }
 
+    //                                 name     state       nextState
     private val states = HashMap.empty[String, (GameState, GameState)]
 
     def addState(gameState: GameState) {
@@ -27,6 +28,12 @@ object StateManager {
     def addState(gameState: GameState, nextGameState: GameState) {
         states(gameState.name) = (gameState, nextGameState)
         gameState.added()
+    }
+
+    def setState(stateName: String) {
+        if (states.contains(stateName)) {
+            currentState = states(stateName)._1
+        }
     }
 
     def removeState(gameState: GameState) {

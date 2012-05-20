@@ -7,13 +7,15 @@ import org.newdawn.slick.Color
 import ua.org.dector.lwsge.time.TimerManager
 import org.lwjgl.input.Keyboard
 import ua.org.dector.lwsge.{GraphicsToolkit, GameController}
+import ua.org.dector.lwsge.state.StateManager
 
 /**
  * @author dector (dector9@gmail.com)
  */
 
 object LWSGEConsole {
-    private val COMMAND_EXIT = "exit"
+    private val COMMAND_EXIT    = "exit"
+    private val COMMAND_PAUSE   = "pause"
 
     private val CONSOLE_ANIMATION_TIMER = "Console Animation Timer"
     val animationTimer = TimerManager.createTimer(CONSOLE_ANIMATION_TIMER)
@@ -113,6 +115,8 @@ object LWSGEConsole {
 
             s.substring(1, commandArgsIndex) match {
                 case COMMAND_EXIT => { addString("Exiting ..."); GameController.exit() }
+                    // Make it general in game!!
+                case COMMAND_PAUSE => { StateManager.setState("Paused") }
                 case _ => { addString("Unknown command \"" + s + "\"") }
             }
         }
