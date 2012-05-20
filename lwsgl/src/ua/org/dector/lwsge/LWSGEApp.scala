@@ -9,8 +9,7 @@ import LWSGEConstants._
 import graphics._
 import common.Config
 import time.TimerManager
-import java.awt.Canvas
-import org.lwjgl.input.Keyboard
+import java.awt.{Graphics, Canvas}
 
 /**
  * Root application class. Extend it to create new game
@@ -128,6 +127,11 @@ abstract class LWSGEApp(val name: String) {
         Config(DRAW_FPS_Y) = Config.i(DISPLAY_HEIGHT) -
                 GraphicsToolkit.MEDIUM_FONT.getLineHeight - 10
         TimerManager.createTimer(FPS_TIMER_ID).start()
+
+        Config(CONSOLE_LINES_NUM)           = ((Config.i(CONSOLE_HEIGHT) -
+                Config.i(CONSOLE_INPUT_HEIGHT)).toFloat / (
+                GraphicsToolkit.CONSOLE_FONT.getLineHeight +
+                        Config.i(CONSOLE_LINES_PADDING))).toInt
     }
 
     private def init() {
@@ -150,11 +154,18 @@ abstract class LWSGEApp(val name: String) {
         Config(CONSOLE_WIDTH)       = Config.i(DISPLAY_WIDTH)
         Config(CONSOLE_HEIGHT)      = (Config.i(DISPLAY_HEIGHT) / 2).toInt
 
-        Config(CONSOLE_INPUT_SIDE_MARGIN)       = 10
-        Config(CONSOLE_INPUT_UP_DOWN_MARGIN)    = 10
-        Config(CONSOLE_INPUT_WIDTH)             = Config.i(CONSOLE_WIDTH) -
-                2 * Config.i(CONSOLE_INPUT_SIDE_MARGIN)
-        Config(CONSOLE_INPUT_HEIGHT)            = 25
+        Config(CONSOLE_PADDING_LEFT)        = 10
+        Config(CONSOLE_PADDING_RIGHT)       = 10
+        Config(CONSOLE_PADDING_TOP)         = 10
+        Config(CONSOLE_PADDING_BOTTOM)      = 10
+
+        Config(CONSOLE_LINES_PADDING)       = 5
+
+        Config(CONSOLE_INPUT_WIDTH)         = Config.i(CONSOLE_WIDTH) -
+                2 * Config.i(CONSOLE_PADDING_LEFT)
+        Config(CONSOLE_INPUT_HEIGHT)        = 25
+
+        Config(CONSOLE_INPUT_CURSOR)        = "|"
 
         Config(CONSOLE_DRAW_COLOR)  = Color.white
         Config(CONSOLE_BACK_COLOR)  = {

@@ -13,12 +13,21 @@ object LWSGEConstants {
     val CONSOLE_OPENED          = "console.opened"
     val CONSOLE_OPENING         = "console.opening"
     val CONSOLE_MOVING          = "console.moving"
+
     val CONSOLE_WIDTH           = "console.width"
     val CONSOLE_HEIGHT          = "console.height"
-    val CONSOLE_INPUT_SIDE_MARGIN       = "console.input.side.margin"
-    val CONSOLE_INPUT_UP_DOWN_MARGIN    = "console.input.up.down.margin"
-    val CONSOLE_INPUT_WIDTH   = "console.input.width"
-    val CONSOLE_INPUT_HEIGHT  = "console.input.height"
+    val CONSOLE_PADDING_LEFT    = "console.padding.left"
+    val CONSOLE_PADDING_RIGHT   = "console.padding.right"
+    val CONSOLE_PADDING_TOP     = "console.padding.top"
+    val CONSOLE_PADDING_BOTTOM  = "console.padding.bottom"
+
+    val CONSOLE_LINES_NUM       = "console.lines.num"
+    val CONSOLE_LINES_PADDING   = "console.lines.padding"
+
+    val CONSOLE_INPUT_CURSOR    = "console.input.cursor"
+
+    val CONSOLE_INPUT_WIDTH     = "console.input.width"
+    val CONSOLE_INPUT_HEIGHT    = "console.input.height"
 
     val CONSOLE_DRAW_COLOR      = "console.draw.color"
     val CONSOLE_BACK_COLOR      = "console.back.color"

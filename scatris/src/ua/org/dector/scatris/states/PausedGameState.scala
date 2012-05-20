@@ -11,6 +11,7 @@ import ua.org.dector.scatris.{GameCore, Drawer}
 import ua.org.dector.lwsge.state.{StateManager, GameState}
 import ua.org.dector.lwsge.time.TimerManager._
 import ua.org.dector.lwsge.time.TimerManager
+import ua.org.dector.lwsge.console.LWSGEConsole
 
 /**
  * @author dector (dector9@gmail.com)
@@ -56,16 +57,20 @@ object PausedGameState extends GameState("Paused") {
     }
 
     def checkInput() {
-        while (Keyboard.next && Keyboard.getEventKeyState) {
-            Keyboard.getEventKey match {
-                case Keyboard.KEY_ESCAPE =>
-                    GameController.exit()
-                case Keyboard.KEY_P =>
-                    StateManager.currentState = RunningGameState
-                case Keyboard.KEY_GRAVE =>
-                    if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-                        GameController.trySwitchConsole()
-                case _ => {}
+        if (Config.bool(CONSOLE_OPENED)) {
+            LWSGEConsole.checkInput()
+        } else {
+            while (Keyboard.next && Keyboard.getEventKeyState) {
+                Keyboard.getEventKey match {
+                    case Keyboard.KEY_ESCAPE =>
+                        GameController.exit()
+                    case Keyboard.KEY_P =>
+                        StateManager.currentState = RunningGameState
+                    case Keyboard.KEY_GRAVE =>
+                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+                            GameController.trySwitchConsole()
+                    case _ => {}
+                }
             }
         }
     }

@@ -8,6 +8,7 @@ import org.lwjgl.input.Keyboard
 import ua.org.dector.lwsge.{GameController, GraphicsToolkit}
 import ua.org.dector.lwsge.state.{StateManager, GameState}
 import ua.org.dector.scatris.Drawer
+import ua.org.dector.lwsge.console.LWSGEConsole
 
 /**
  * @author dector (dector9@gmail.com)
@@ -43,17 +44,21 @@ object GameOverGameState extends GameState("Game Over") {
     }
 
     def checkInput() {
-        while (Keyboard.next && Keyboard.getEventKeyState) {
-            Keyboard.getEventKey match {
-                case Keyboard.KEY_R =>
-                    if (Keyboard.getEventKeyState)
-                        StateManager.currentState = ResetGameState
-                case Keyboard.KEY_ESCAPE =>
-                    GameController.exit()
-                case Keyboard.KEY_GRAVE =>
-                    if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-                        GameController.trySwitchConsole()
-                case _ => {}
+        if (Config.bool(CONSOLE_OPENED)) {
+            LWSGEConsole.checkInput()
+        } else {
+            while (Keyboard.next && Keyboard.getEventKeyState) {
+                Keyboard.getEventKey match {
+                    case Keyboard.KEY_R =>
+                        if (Keyboard.getEventKeyState)
+                            StateManager.currentState = ResetGameState
+                    case Keyboard.KEY_ESCAPE =>
+                        GameController.exit()
+                    case Keyboard.KEY_GRAVE =>
+                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+                            GameController.trySwitchConsole()
+                    case _ => {}
+                }
             }
         }
     }

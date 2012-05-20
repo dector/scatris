@@ -9,6 +9,7 @@ import org.lwjgl.input.Keyboard
 import ua.org.dector.scatris.ScatrisConstants._
 import ua.org.dector.lwsge.{GraphicsToolkit, GameController}
 import ua.org.dector.lwsge.LWSGEConstants._
+import ua.org.dector.lwsge.console.LWSGEConsole
 
 /**
  * @author dector (dector9@gmail.com)
@@ -64,15 +65,19 @@ object SplashGameState extends GameState("Splash") {
     }
 
     def checkInput() {
-        while (Keyboard.next) {
-            if (Keyboard.getEventKeyState) {
-                Keyboard.getEventKey match {
-                    case Keyboard.KEY_SPACE => StateManager.nextState()
-                    case Keyboard.KEY_ESCAPE => GameController.exit()
-                    case Keyboard.KEY_GRAVE =>
-                        if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-                            GameController.trySwitchConsole()
-                    case _ => {}
+        if (Config.bool(CONSOLE_OPENED)) {
+            LWSGEConsole.checkInput()
+        } else {
+            while (Keyboard.next) {
+                if (Keyboard.getEventKeyState) {
+                    Keyboard.getEventKey match {
+                        case Keyboard.KEY_SPACE => StateManager.nextState()
+                        case Keyboard.KEY_ESCAPE => GameController.exit()
+                        case Keyboard.KEY_GRAVE =>
+                            if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+                                GameController.trySwitchConsole()
+                        case _ => {}
+                    }
                 }
             }
         }
