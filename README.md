@@ -26,6 +26,12 @@ Screenshots
 ![Scatris screenshot with phantom element](https://lh4.googleusercontent.com/--BeEhg0VZN8/T7gWBkUJpLI/AAAAAAAADCE/3xhr0B5FWqk/s640/scatris_phantom.png "Phantom")
 
 
+Play
+----
+
+[Java Web Start](http://goo.gl/1y2xY "Play Scatris")
+
+
 Download
 --------
 
