@@ -10,7 +10,7 @@ object ScatrisConstants {
 
     val BIG_BLOCK_SIZE          = "big.block.size"
     val SMALL_BLOCK_SIZE        = "small.block.size"
-    val BLOCK_MARGING           = "block.marging"
+    val BLOCK_MARGIN            = "block.margin"
 
     val FIELD_X_PADDING         = "field.x.padding"
     val FIELD_Y_PADDING         = "field.y.padding"
@@ -55,6 +55,33 @@ object ScatrisConstants {
 
     val SPLASH_FADE_TIME        = "splash.fade.time"
     val SPLASH_FADE_TIME_PAUSE  = "splash.fade.time.pause"
+
+    val SPLASH_LOGO_MOVING_TIME     = "splash.logo.moving.time"
+    val SPLASH_LOGO_ROTATING_TIME   = "splash.logo.rotating.time"
+
+    val SPLASH_LOGO_LEFT_START_X    = "splash.logo.left.start.x"
+    val SPLASH_LOGO_LEFT_START_Y    = "splash.logo.left.start.y"
+    val SPLASH_LOGO_RIGHT_START_X   = "splash.logo.right.start.x"
+    val SPLASH_LOGO_RIGHT_START_Y   = "splash.logo.right.start.y"
+
+    val SPLASH_LOGO_MEET_X  = "splash.logo.meet.x"
+    val SPLASH_LOGO_MEET_Y  = "splash.logo.meet.y"
+
+    val SPLASH_LOGO_LEFT_X  = "splash.logo.left.x"
+    val SPLASH_LOGO_LEFT_Y  = "splash.logo.left.y"
+    val SPLASH_LOGO_RIGHT_X = "splash.logo.right.x"
+    val SPLASH_LOGO_RIGHT_Y = "splash.logo.right.y"
+
+    val SPLASH_LOGO_LEFT_ELEMENT    = "splash.logo.left.element"
+    val SPLASH_LOGO_RIGHT_ELEMENT   = "splash.logo.right.element"
+
+    val SPLASH_LOGO_LEFT_COLOR      = "splash.logo.left.color"
+    val SPLASH_LOGO_RIGHT_COLOR     = "splash.logo.right.color"
+
+    val SPLASH_LOGO_ROTATE_ANGLE    = "splash.logo.rotate.angle"
+    val SPLASH_LOGO_ROTATE_CENTER_X  = "splash.logo.rotate.center.x"
+    val SPLASH_LOGO_ROTATE_CENTER_Y  = "splash.logo.rotate.center.y"
+//    val SPLASH_LOGO_ROTATE_CCW    = "splash.logo.rotate.direction"
 
     val PRESS_SPACE_TO_START_MSG        = "press.space.to.start.msg"
     val PRESS_SPACE_TO_START_MSG_X      = "press.space.to.start.msg.x"

@@ -1,7 +1,6 @@
 package ua.org.dector.scatris
 
 import states._
-import ua.org.dector.lwsge.common.Config._
 import org.newdawn.slick.Color
 import ua.org.dector.lwsge.common.Config
 import ua.org.dector.lwsge.state.StateManager
@@ -24,7 +23,7 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
 
         Config(BIG_BLOCK_SIZE)          = 20
         Config(SMALL_BLOCK_SIZE)        = 10
-        Config(BLOCK_MARGING)           = 2
+        Config(BLOCK_MARGIN)           = 2
 
         Config(FIELD_X_PADDING)         = 5
         Config(FIELD_Y_PADDING)         = 10
@@ -42,10 +41,10 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
                 Config.i(SMALL_BLOCK_SIZE)) / 2).toInt
 
         Config(FIELD_WIDTH)             = Config.i(FIELD_X_BLOCKS_NUM) *
-                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN)) +
                 2 * Config.i(FIELD_X_PADDING)
         Config(FIELD_HEIGHT)            = Config.i(FIELD_Y_BLOCKS_NUM) *
-                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN)) +
                 2 * Config.i(FIELD_Y_PADDING)
 
         Config(FIELD_X_START)           = ((Config.i(DISPLAY_WIDTH) -
@@ -54,9 +53,9 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
                 Config.i(FIELD_HEIGHT))/2).toInt
 
         Config(NEXT_ELEMENT_SHOW_WIDTH)         = 3 *
-                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING))
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN))
         Config(NEXT_ELEMENT_SHOW_HEIGHT)        = 4 *
-                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING))
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN))
         Config(NEXT_ELEMENT_SHOW_OFFSET_X)      = 20
         Config(NEXT_ELEMENT_SHOW_OFFSET_Y)      = 40 +
                 Config.i(NEXT_ELEMENT_SHOW_HEIGHT)
@@ -81,6 +80,11 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
 
         Config(SPLASH_FADE_TIME)        = 900
         Config(SPLASH_FADE_TIME_PAUSE)  = 300
+        Config(SPLASH_LOGO_MOVING_TIME)  = 500
+        Config(SPLASH_LOGO_ROTATING_TIME)  = 500
+
+        Config(SPLASH_LOGO_ROTATE_ANGLE) = 0
+//        Config(SPLASH_LOGO_ROTATE_CCW)  = true
 
         Config(PRESS_SPACE_TO_START_MSG)        = "Press <Space> to start"
 
@@ -127,5 +131,33 @@ object Scatris extends LWSGEApp("Scatris v1.0") {
                 GraphicsToolkit.MEDIUM_FONT.getWidth(
                     Config.s(PRESS_SPACE_TO_START_MSG))) /2).toInt
         Config(PRESS_SPACE_TO_START_MSG_Y) = 2 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
+
+        Config(SPLASH_LOGO_MEET_X) = Config.i(SPLASH_IMAGE_X) -
+                3 * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN))
+        Config(SPLASH_LOGO_MEET_Y) = (Config.i(SPLASH_IMAGE_Y) +
+                Config(SPLASH_IMAGE).asInstanceOf[Texture].getImageHeight / 2).toInt
+
+        Config(SPLASH_LOGO_ROTATE_CENTER_X) = (Config.i(SPLASH_LOGO_MEET_X) +
+                2 * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN))).toInt
+        Config(SPLASH_LOGO_ROTATE_CENTER_Y) = (Config.i(SPLASH_LOGO_MEET_Y) +
+                Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN)).toInt
+
+        Config(SPLASH_LOGO_LEFT_START_X) = -3 * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN))
+        Config(SPLASH_LOGO_LEFT_START_Y) = Config.i(SPLASH_LOGO_MEET_Y)
+        Config(SPLASH_LOGO_RIGHT_START_X) = Config.i(DISPLAY_WIDTH) +
+                3 * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN))
+        Config(SPLASH_LOGO_RIGHT_START_Y) = Config.i(SPLASH_LOGO_MEET_Y) +
+                Config.i(BLOCK_MARGIN)
+
+        Config(SPLASH_LOGO_LEFT_X) = Config.i(SPLASH_LOGO_LEFT_START_X)
+        Config(SPLASH_LOGO_LEFT_Y) = Config.i(SPLASH_LOGO_LEFT_START_Y)
+        Config(SPLASH_LOGO_RIGHT_X) = Config.i(SPLASH_LOGO_RIGHT_START_X)
+        Config(SPLASH_LOGO_RIGHT_Y) = Config.i(SPLASH_LOGO_RIGHT_START_Y) +
+                Config.i(BLOCK_MARGIN)
+
+        Config(SPLASH_LOGO_LEFT_ELEMENT)    = {val fig = new G; fig.setPreviousRotation(); fig}
+        Config(SPLASH_LOGO_LEFT_COLOR)      = Config(BLOCK_COLOR).asInstanceOf[Color]
+        Config(SPLASH_LOGO_RIGHT_ELEMENT)   = {val fig = new G; fig.setNextRotation(); fig}
+        Config(SPLASH_LOGO_RIGHT_COLOR)     = Config(PHANTOM_BLOCK_COLOR).asInstanceOf[Color]
     }
 }

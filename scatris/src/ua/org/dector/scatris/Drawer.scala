@@ -5,6 +5,7 @@ import ua.org.dector.lwsge.common.Config
 import org.newdawn.slick.Color
 import ua.org.dector.scatris.ScatrisConstants._
 import ua.org.dector.lwsge.GraphicsToolkit
+import org.lwjgl.opengl.GL11
 
 /**
  * @author dector (dector9@gmail.com)
@@ -32,14 +33,45 @@ object Drawer {
     }
 
     private def drawBlock(xNum: Int, yNum: Int, color: Color) {
-        val x = xNum * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
+        val x = xNum * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN)) +
                 Config.i(FIELD_X_START) + Config.i(FIELD_X_PADDING)
-        val y = yNum * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) +
+        val y = yNum * (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN)) +
                 Config.i(FIELD_Y_START) + Config.i(FIELD_Y_PADDING)
 
-        drawRect(x, y, Config.i(BIG_BLOCK_SIZE), Config.i(BIG_BLOCK_SIZE), color)
-        fillRect(x + Config.i(BLOCKS_DIFF_PLACE), y + Config.i(BLOCKS_DIFF_PLACE),
+        drawBlockAbs(x, y, color)
+    }
+
+    def drawBlockAbs(absX: Int, absY: Int, color: Color) {
+        drawRect(absX, absY, Config.i(BIG_BLOCK_SIZE), Config.i(BIG_BLOCK_SIZE), color)
+        fillRect(absX + Config.i(BLOCKS_DIFF_PLACE), absY + Config.i(BLOCKS_DIFF_PLACE),
             Config.i(SMALL_BLOCK_SIZE), Config.i(SMALL_BLOCK_SIZE), color)
+    }
+
+    def drawElementAbs(absX: Int, absY: Int, fig: Element, color: Color,
+                       rotX: Int, rotY: Int, angle: Int) {
+        val size = Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN)
+
+        if (angle != 0) {
+            GL11.glTranslatef(rotX, rotY, 0)
+            GL11.glRotatef(angle, 0, 0, 1)
+
+            GL11.glColor3f(1, 0, 0)
+            GL11.glBegin(GL11.GL_LINE)
+            GL11.glVertex3f(0, 0, 0)
+            GL11.glVertex3f(1, 1, 0)
+            GL11.glEnd()
+
+            for ((x, y) <- fig.blocks) {
+                drawBlockAbs(absX + x * size - rotX, absY + y * size - rotY, color)
+            }
+
+            GL11.glRotatef(-angle, 0, 0, 1)
+            GL11.glTranslatef(-rotX, -rotY, 0)
+        } else {
+            for ((x, y) <- fig.blocks) {
+                drawBlockAbs(absX + x * size, absY + y * size, color)
+            }
+        }
     }
 
     // ---------------------------------------------------------------------------
@@ -58,9 +90,9 @@ object Drawer {
     private def drawStat() {
         val statX = Config.i(FIELD_X_START) +
                 Config.i(NEXT_ELEMENT_SHOW_X_IN_BLOCKS) * (Config.i(BIG_BLOCK_SIZE) +
-                        Config.i(BLOCK_MARGING))
+                        Config.i(BLOCK_MARGIN))
         val statY = Config.i(FIELD_Y_START) + Config.i(NEXT_ELEMENT_SHOW_Y_IN_BLOCKS) *
-                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGING)) -
+                (Config.i(BIG_BLOCK_SIZE) + Config.i(BLOCK_MARGIN)) -
                 4 * GraphicsToolkit.MEDIUM_FONT.getLineHeight
 
         val statText2 = "Score: " + GameCore.score
